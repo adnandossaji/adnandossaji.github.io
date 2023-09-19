@@ -1,98 +1,86 @@
-import React from 'react';
-import Header from './components/shared/Header';
-import Footer from './components/shared/Footer';
 
-const APP_URL_ROOT = "https://cdn.jsdelivr.net/gh/adnandossaji/adnandossaji.github.io@master";
+import * as React from 'react';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import { Link } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
+import { styled } from '@mui/material/styles';
 
-class App extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            section: window.location.hash.substring(1) || 'home',
-        };
-    }
+const links = [
+    { label: 'Blog', url: '/blog' },
+];
 
-    handleHashChange = () => {
-        const section = window.location.hash.substring(1).split("-")[0]
-        this.setState({ section });
-    };
-
-    componentDidMount() {
-        window.addEventListener('hashchange', this.handleHashChange, false);
-
-        if (this.isMobile()) {
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.type = 'text/css';
-            link.href = `${APP_URL_ROOT}/assets/css/mobile.css`;
-            document.head.appendChild(link);
+const backgrounds = [
+    {
+        style: {
+            background: 'linear-gradient(120deg, #f6d365 0%, #fda085 100%)'
         }
-    }
+    },
+    {
+        style: {
+            background: 'linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%)',
+            position: 'relative'
+        },
+        shapes: [
+            {
+                type: 'circle',
+                animation: 'floating 5s infinite'
+            },
+            {
+                type: 'triangle',
+                animation: 'rotate 5s infinite'
+            }
+        ]
+    },
+    // ... add more backgrounds with different styles and shapes
+];
 
-    componentWillUnmount() {
-        window.removeEventListener('hashchange', this.handleHashChange, false);
-    }
+const randomBackground = backgrounds[Math.floor(Math.random() * backgrounds.length)];
 
-    changeSection(section) {
-        window.location.hash = `#${section}`;
-        this.setState({ section });
-    }
+const StyledBox = styled(Box)(({ theme }) => ({
+    height: '100%',
+    margin: 0,
+    padding: theme.spacing(5),
+    ...randomBackground.style
+}));
 
-    isMobile() {
-        return window.innerWidth <= 980;
-    }
-
-    getContentStyle() {
-        if (this.isMobile()) {
-            return {
-                marginTop: '100px',
-                marginBottom: '50px'
-            };
-        } else {
-            return {
-                marginTop: '50px',
-                marginBottom: '50px'
-            };
-        }
-    }
-
-    render() {
-        let content;
-
-        // Import your component here
-        // const Home = ...
-        // const Blog = ...
-        // const Photos = ...
-
-        // if (this.state.section === 'home') {
-        //     content = <Home isMobile={this.isMobile} />;
-        // } else if (this.state.section === 'blog') {
-        //     content = <Blog isMobile={this.isMobile} changeSection={section => this.changeSection(section)}></Blog>;
-        // } else if (this.state.section === 'photos') {
-        //     content = <Photos isMobile={this.isMobile} changeSection={section => this.changeSection(section)}></Photos>;
-        // }
-
-        return (
-            <div>
-                {/* Import your Header and Footer component here */}
-                {/* const Header = ... */}
-                {/* const Footer = ... */}
-                <Header 
-                    name="Adnan Dossaji"
-                    changeSection={section => this.changeSection(section)}
-                    isMobile={this.isMobile}
-                />
-                
-                <div
-                    className="content"
-                    style={this.getContentStyle()}
+const App = () => {
+    return (
+        <StyledBox>
+            <Box
+                alignItems="center"
+                justifyContent="center"
+                display="flex"
+                flexDirection="column"
+                marginBottom={3} // Add some space before the Outlet
+            >
+                <Typography variant="h4" gutterBottom>
+                    Adnan Dossaji
+                </Typography>
+                <ButtonGroup
+                    orientation="horizontal"
+                    aria-label="horizontal outlined button group"
                 >
-                    {content}
-                </div>
-                <Footer />
-            </div>
-        );
-    }
-}
+                    {links.map(link => (
+                        link.url.startsWith('/') ? (
+                            <Button key={link.label} component={Link} to={link.url}>
+                                {link.label}
+                            </Button>
+                        ) : (
+                            <Button key={link.label} href={link.url}>
+                                {link.label}
+                            </Button>
+                        )
+                    ))}
+                </ButtonGroup>
+            </Box>
+            <Box>
+                <Outlet />
+            </Box>
+        </StyledBox>
+    );
+};
 
 export default App;

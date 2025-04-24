@@ -1,0 +1,87 @@
+---
+import { getCollection } from 'astro:content';
+import '../../styles/components/sidebar.css';
+
+interface Props {
+  activeCategory?: string;
+}
+
+const { activeCategory = '' } = Astro.props;
+
+// Get all blog posts
+const allPosts = await getCollection('blog');
+
+// Extract unique categories (we'll use frontmatter tags for categories)
+// For now, we'll generate some example categories based on the content
+const allCategories = [
+  { slug: 'tech', name: 'Technology', count: 3 },
+  { slug: 'programming', name: 'Programming', count: 2 },
+  { slug: 'personal', name: 'Personal', count: 1 },
+];
+
+// Generate popular tags
+const popularTags = [
+  'JavaScript', 'React', 'Astro', 'Web Development', 
+  'OAuth', 'API', 'GitHub', 'NFT', 'Career'
+];
+
+// Get recent posts (top 3)
+const recentPosts = allPosts
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+---
+
+<div class="sidebar-container">
+  <div class="sidebar-section">
+    <h3 class="sidebar-heading">Categories</h3>
+    <ul class="categories-list">
+      <li>
+        <a 
+          href="/blog" 
+          class={activeCategory === '' ? 'active' : ''}
+        >
+          All Posts
+          <span class="count">{allPosts.length}</span>
+        </a>
+      </li>
+      {allCategories.map(category => (
+        <li>
+          <a 
+            href={`/blog/category/${category.slug}`} 
+            class={activeCategory === category.slug ? 'active' : ''}
+          >
+            {category.name}
+            <span class="count">{category.count}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+  
+  <div class="sidebar-section">
+    <h3 class="sidebar-heading">Recent Posts</h3>
+    <ul class="recent-posts-list">
+      {recentPosts.map(post => (
+        <li>
+          <a href={`/blog/${post.id}/`}>
+            <div class="recent-post-image">
+              <img src={post.data.heroImage} alt={post.data.title} />
+            </div>
+            <div class="recent-post-title">{post.data.title}</div>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+  
+  <div class="sidebar-section">
+    <h3 class="sidebar-heading">Popular Tags</h3>
+    <div class="tags-cloud">
+      {popularTags.map(tag => (
+        <a href={`/blog/tag/${tag.toLowerCase().replace(/\s+/g, '-')}`} class="tag">
+          {tag}
+        </a>
+      ))}
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,48 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Sidebar from '../components/blog/Sidebar.astro';
+import '../styles/components/blog-layout.css';
+
+interface Props {
+  title: string;
+  description: string;
+  activeCategory?: string;
+}
+
+const { title, description, activeCategory = '' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={title} description={description} />
+  </head>
+  <body>
+    <Header />
+    <div class="blog-container">
+      <main class="blog-main">
+        <button id="sidebarToggle" class="mobile-sidebar-toggle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+          </svg>
+          Categories
+        </button>
+        <slot />
+      </main>
+      <aside class="blog-sidebar" id="blogSidebar">
+        <Sidebar activeCategory={activeCategory} />
+      </aside>
+    </div>
+    <Footer />
+    
+    <script>
+      // Toggle sidebar on mobile
+      document.getElementById('sidebarToggle')?.addEventListener('click', () => {
+        const sidebar = document.getElementById('blogSidebar');
+        sidebar?.classList.toggle('active');
+      });
+    </script>
+  </body>
+</html> 

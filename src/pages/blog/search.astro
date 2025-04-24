@@ -1,0 +1,287 @@
+---
+import { getCollection } from 'astro:content';
+import FormattedDate from '../../components/FormattedDate.astro';
+import BlogLayout from '../../layouts/BlogLayout.astro';
+
+// Get query parameter
+const query = Astro.url.searchParams.get('q') || '';
+
+// Get all blog posts
+const allPosts = await getCollection('blog');
+
+// Filter posts based on search query (simple client-side approach for now)
+// In a production site, you might want to use a proper search index like Algolia or Lunr.js
+const searchResults = query ? allPosts.filter(post => {
+  const searchableContent = `
+    ${post.data.title.toLowerCase()}
+    ${post.data.description?.toLowerCase() || ''}
+    ${post.body?.toLowerCase() || ''}
+  `;
+  return searchableContent.includes(query.toLowerCase());
+}) : [];
+
+// Sort results by date (newest first)
+searchResults.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<BlogLayout 
+  title={`Search Results for "${query}"`} 
+  description={`Search results for "${query}" in the blog`}
+>
+  <div class="search-header">
+    <h1 class="page-title">Search Results</h1>
+    <p class="search-info">
+      {searchResults.length 
+        ? `Found ${searchResults.length} ${searchResults.length === 1 ? 'result' : 'results'} for "${query}"`
+        : `No results found for "${query}"`
+      }
+    </p>
+    
+    {!searchResults.length && (
+      <div class="no-results">
+        <p>Try adjusting your search terms or browse all posts below.</p>
+        <a href="/blog" class="browse-all-btn">Browse All Posts</a>
+      </div>
+    )}
+  </div>
+  
+  {searchResults.length > 0 && (
+    <ul class="search-results-list">
+      {searchResults.map((post) => (
+        <li class="search-result-item">
+          <div class="result-thumbnail">
+            <a href={`/blog/${post.id}/`}>
+              <img src={post.data.heroImage} alt={post.data.title} />
+            </a>
+          </div>
+          <div class="result-content">
+            <h2 class="result-title">
+              <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+            </h2>
+            <p class="result-date">
+              <span class="date-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                </svg>
+              </span>
+              <FormattedDate date={post.data.pubDate} />
+            </p>
+            <p class="result-description">{post.data.description}</p>
+            <a href={`/blog/${post.id}/`} class="read-more">
+              Read more <span class="arrow">→</span>
+            </a>
+          </div>
+        </li>
+      ))}
+    </ul>
+  )}
+  
+  <script>
+    // Highlight search terms in the results
+    document.addEventListener('DOMContentLoaded', () => {
+      const searchParams = new URLSearchParams(window.location.search);
+      const query = searchParams.get('q');
+      
+      if (query) {
+        const resultElements = document.querySelectorAll('.result-title a, .result-description');
+        
+        resultElements.forEach(element => {
+          const originalText = element.textContent || '';
+          if (!originalText.toLowerCase().includes(query.toLowerCase())) return;
+          
+          try {
+            // Escape special regex characters to prevent errors
+            const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`(${escapedQuery})`, 'gi');
+            element.innerHTML = originalText.replace(
+              regex, 
+              '<span class="search-highlight">$1</span>'
+            );
+          } catch (error) {
+            console.error('Error highlighting search terms:', error);
+          }
+        });
+      }
+    });
+  </script>
+</BlogLayout>
+
+<style>
+  .search-header {
+    margin-bottom: 2.5rem;
+  }
+  
+  .page-title {
+    font-size: 2.5rem;
+    margin: 0 0 1rem;
+    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .search-info {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin: 0 0 1.5rem;
+  }
+  
+  .no-results {
+    background-color: var(--light);
+    padding: 2rem;
+    border-radius: 0.8rem;
+    text-align: center;
+    margin: 2rem 0;
+  }
+  
+  .no-results p {
+    margin-bottom: 1.5rem;
+    color: var(--text-muted);
+  }
+  
+  .browse-all-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  
+  .browse-all-btn:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+  
+  .search-results-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .search-result-item {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+  }
+  
+  .search-result-item:last-child {
+    border-bottom: none;
+  }
+  
+  .result-thumbnail {
+    flex: 0 0 auto;
+    width: 180px;
+    height: 120px;
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+  
+  .result-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  
+  .search-result-item:hover .result-thumbnail img {
+    transform: scale(1.05);
+  }
+  
+  .result-content {
+    flex: 1;
+    min-width: 0; /* Prevent text from overflowing */
+  }
+  
+  .result-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.4rem;
+    line-height: 1.3;
+  }
+  
+  .result-title a {
+    color: var(--text-dark);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .search-result-item:hover .result-title a {
+    color: var(--primary);
+  }
+  
+  .result-date {
+    display: flex;
+    align-items: center;
+    margin: 0 0 0.8rem 0;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+  
+  .date-icon {
+    margin-right: 0.5rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .result-description {
+    margin: 0 0 1rem 0;
+    color: var(--text-muted);
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+  
+  .read-more {
+    display: inline-flex;
+    align-items: center;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+  }
+  
+  .read-more:hover {
+    color: var(--primary-dark);
+  }
+  
+  .arrow {
+    display: inline-block;
+    transition: transform 0.2s ease;
+    margin-left: 0.25rem;
+  }
+  
+  .read-more:hover .arrow {
+    transform: translateX(3px);
+  }
+  
+  .search-highlight {
+    background-color: rgba(58, 134, 255, 0.15);
+    padding: 0.1rem 0.2rem;
+    border-radius: 0.2rem;
+    font-weight: 500;
+    color: var(--primary);
+  }
+  
+  @media (max-width: 768px) {
+    .search-result-item {
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .result-thumbnail {
+      width: 100%;
+      height: 160px;
+    }
+    
+    .page-title {
+      font-size: 2rem;
+    }
+  }
+</style> 

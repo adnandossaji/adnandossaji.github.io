@@ -1,0 +1,115 @@
+---
+import Layout from '../layouts/BlogPost.astro';
+---
+
+<Layout
+	title="About Me"
+	description="Software engineer with a passion for photography, growing peppers, houseplants, and snowboarding"
+	pubDate={new Date('April 1 2025')}
+>
+	<style>
+		h2 {
+			border-bottom: 2px solid rgba(131, 56, 236, 0.2);
+			padding-bottom: 0.5rem;
+			margin-top: 2.5rem;
+		}
+		h2::before {
+			margin-right: 0.5rem;
+			font-size: 1.5rem;
+		}
+		h2.intro::before { content: "👋 "; }
+		h2.interests::before { content: "🌱 "; }
+		h2.work::before { content: "🏢 "; }
+		h2.connect::before { content: "🔗 "; }
+		
+		p {
+			line-height: 1.8;
+			color: #4a4a4a;
+		}
+		a {
+			text-decoration: none;
+			border-bottom: 1px dotted #8338ec;
+			transition: all 0.2s ease;
+		}
+		a:hover {
+			color: #ff006e;
+			border-bottom: 1px solid #ff006e;
+		}
+		.interests-icons {
+			display: flex;
+			justify-content: space-around;
+			flex-wrap: wrap;
+			margin: 1.5rem 0;
+		}
+		.interest-item {
+			text-align: center;
+			margin: 0 1rem 1.5rem;
+		}
+		.interest-icon {
+			font-size: 2.5rem;
+			margin-bottom: 0.5rem;
+			display: block;
+		}
+		.interest-name {
+			font-weight: 500;
+		}
+		ul {
+			line-height: 1.8;
+			color: #4a4a4a;
+			margin-left: 1.5rem;
+		}
+		@media (max-width: 768px) {
+			.interests-icons {
+				justify-content: center;
+			}
+			.interest-item {
+				width: 40%;
+			}
+		}
+	</style>
+
+	<h2 class="intro">Hello, I'm Adnan</h2>
+	<p>
+		Senior Software Engineer specializing in authentication systems, API design, and building secure, scalable applications. 
+		Currently at Chime. Previously at Panopta, Bank of America, AT&T, the Chicago Cubs, and Medtelligent. Former graphic designer turned engineer with a 
+		passion for clean code and thoughtful experiences.
+	</p>
+
+	<h2 class="interests">Beyond the Code</h2>
+	<div class="interests-icons">
+		<div class="interest-item">
+			<span class="interest-icon">🍴</span>
+			<span class="interest-name">Food</span>
+		</div>
+		<div class="interest-item">
+			<span class="interest-icon">📸</span>
+			<span class="interest-name">Photography</span>
+		</div>
+		<div class="interest-item">
+			<span class="interest-icon">🌿</span>
+			<span class="interest-name">Houseplants</span>
+		</div>
+		<div class="interest-item">
+			<span class="interest-icon">🏂</span>
+			<span class="interest-name">Snowboarding</span>
+		</div>
+	</div>
+
+	<h2 class="work">Professional Journey</h2>
+	<ul>
+		<li><strong style="color: #3a86ff;">Chime</strong> — Risk Engineering & secure authentication systems</li>
+		<li><strong style="color: #3a86ff;">Panopta</strong> — Network monitoring & performance analytics</li>
+		<li><strong style="color: #3a86ff;">Bank of America Merrill Lynch</strong> — Financial market data technology</li>
+		<li><strong style="color: #3a86ff;">Northtrack LLC</strong> — Co-founder, medical education tracking solutions</li>
+		<li><strong style="color: #3a86ff;">Chicago Cubs</strong> — Ticketing systems & data analytics</li>
+		<li><strong style="color: #3a86ff;">Design Background</strong> — Branding & visual identity for Elektro, MMM's Gourmet Ice Cream, and Koita Foods</li>
+	</ul>
+
+	<h2 class="connect">Let's Connect</h2>
+	<p>
+		Find me on 
+		<a href="https://github.com/adnandossaji" target="_blank">GitHub</a>, 
+		<a href="https://instagram.com/adnanprint" target="_blank">Instagram</a>, or 
+		<a href="https://linkedin.com/in/adnandossaji" target="_blank">LinkedIn</a>.
+	</p>
+</Layout>

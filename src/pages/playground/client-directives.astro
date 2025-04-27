@@ -1,0 +1,175 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import { Code } from 'astro:components';
+
+// Define example components for each directive
+const directiveInfo = [
+  {
+    name: 'client:load',
+    description: 'Loads and hydrates the component JavaScript immediately on page load.',
+    usage: '<Component client:load />',
+    useCase: 'Critical UI components visible in the initial viewport.'
+  },
+  {
+    name: 'client:idle',
+    description: 'Loads and hydrates the component JavaScript once the page is done with its initial load and the requestIdleCallback event has fired.',
+    usage: '<Component client:idle />',
+    useCase: 'Lower-priority UI elements that don\'t need to be interactive immediately.'
+  },
+  {
+    name: 'client:visible',
+    description: 'Loads and hydrates the component JavaScript once the component has entered the user\'s viewport using IntersectionObserver.',
+    usage: '<Component client:visible />',
+    useCase: 'Components below the fold or any UI that isn\'t immediately visible.'
+  },
+  {
+    name: 'client:media',
+    description: 'Loads and hydrates the component JavaScript once a specific CSS media query is met.',
+    usage: '<Component client:media="(max-width: 768px)" />',
+    useCase: 'Components that should only be interactive on certain screen sizes.'
+  },
+  {
+    name: 'client:only',
+    description: 'Skips server-rendering and only renders on the client. Acts like client:load in that it loads immediately.',
+    usage: '<Component client:only="react" />',
+    useCase: 'Components that rely on browser-only APIs or need to be completely client-rendered.'
+  }
+];
+---
+
+<MainLayout title="Astro Client Directives Playground" description="Interactive exploration of Astro's client-side hydration directives">
+  <div class="container">
+    <h1>Astro Client Directives Playground</h1>
+    <p class="intro">
+      Astro's client directives determine how components with client-side interactivity are hydrated in the browser.
+      This page demonstrates each directive and its purpose.
+    </p>
+
+    <div class="directive-grid">
+      {directiveInfo.map((directive) => (
+        <div class="directive-card">
+          <h2>{directive.name}</h2>
+          <p>{directive.description}</p>
+          
+          <div class="code-block">
+            <h3>Usage:</h3>
+            <Code code={directive.usage} lang="astro" />
+          </div>
+          
+          <div class="use-case">
+            <h3>Best for:</h3>
+            <p>{directive.useCase}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div class="resources">
+      <h2>Learn More</h2>
+      <ul>
+        <li>
+          <a href="https://docs.astro.build/en/reference/directives-reference/#client-directives" target="_blank">
+            Official Astro Client Directives Documentation
+          </a>
+        </li>
+        <li>
+          <a href="https://docs.astro.build/en/concepts/islands/" target="_blank">
+            Astro Island Architecture
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</MainLayout>
+
+<style>
+  .container {
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--theme-text);
+  }
+
+  .intro {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    max-width: 800px;
+  }
+
+  .directive-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .directive-card {
+    background: var(--theme-bg-offset);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .directive-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  }
+
+  .directive-card h2 {
+    color: var(--theme-accent);
+    margin-top: 0;
+    font-size: 1.5rem;
+  }
+
+  .code-block {
+    background: var(--theme-code-bg);
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    margin: 1rem 0;
+  }
+
+  .use-case {
+    margin-top: 1rem;
+  }
+
+  .use-case h3 {
+    font-size: 1rem;
+    color: var(--theme-text-light);
+    margin-bottom: 0.5rem;
+  }
+
+  .resources {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--theme-divider);
+  }
+
+  .resources ul {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  .resources li {
+    margin: 0.5rem 0;
+  }
+
+  .resources a {
+    color: var(--theme-accent);
+    text-decoration: none;
+  }
+
+  .resources a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    .directive-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style> 

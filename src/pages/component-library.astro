@@ -1,0 +1,375 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import { Code } from 'astro:components';
+import ComponentPreview from '../components/component-library/ComponentPreview';
+
+// Define component categories and components
+const components = [
+  {
+    category: 'UI Elements',
+    items: [
+      {
+        id: 'button',
+        name: 'Button',
+        description: 'Customizable button component with various styles and states.',
+        preview: 'button',
+        defaultProps: { 
+          label: 'Click Me', 
+          variant: 'primary',
+          size: 'medium',
+          disabled: false
+        },
+        usage: `<Button 
+  label="Click Me" 
+  variant="primary" 
+  size="medium" 
+  onClick={() => console.log('Button clicked')} 
+/>`
+      },
+      {
+        id: 'card',
+        name: 'Card',
+        description: 'Versatile card component for displaying content in a contained format.',
+        preview: 'card',
+        defaultProps: {
+          title: 'Card Title',
+          content: 'This is a simple card component with customizable content.',
+          hasShadow: true,
+          rounded: true
+        },
+        usage: `<Card
+  title="Card Title"
+  content="This is a simple card component with customizable content."
+  hasShadow={true}
+  rounded={true}
+/>`
+      }
+    ]
+  },
+  {
+    category: 'Form Controls',
+    items: [
+      {
+        id: 'input',
+        name: 'Input Field',
+        description: 'Text input component with various validation states and styles.',
+        preview: 'input',
+        defaultProps: {
+          label: 'Username',
+          placeholder: 'Enter your username',
+          type: 'text',
+          required: true,
+          error: ''
+        },
+        usage: `<Input
+  label="Username"
+  placeholder="Enter your username"
+  type="text"
+  required={true}
+  onChange={(e) => setUsername(e.target.value)}
+/>`
+      },
+      {
+        id: 'checkbox',
+        name: 'Checkbox',
+        description: 'Checkbox component for boolean input selection.',
+        preview: 'checkbox',
+        defaultProps: {
+          label: 'Accept terms and conditions',
+          checked: false,
+          disabled: false
+        },
+        usage: `<Checkbox
+  label="Accept terms and conditions"
+  checked={isChecked}
+  onChange={(checked) => setIsChecked(checked)}
+/>`
+      }
+    ]
+  }
+];
+---
+
+<MainLayout title="Component Library" description="Browse, customize, and use our collection of reusable UI components">
+  <div class="component-library">
+    <header class="page-header">
+      <h1>Component Library</h1>
+      <p class="intro">
+        Browse our collection of reusable components, customize them to fit your needs, and easily copy the code for your projects.
+      </p>
+    </header>
+
+    <div class="component-filters">
+      <select id="categoryFilter" class="filter-select">
+        <option value="all">All Categories</option>
+        {components.map(category => (
+          <option value={category.category}>{category.category}</option>
+        ))}
+      </select>
+      <div class="search-container">
+        <input 
+          type="text" 
+          id="componentSearch" 
+          placeholder="Search components..." 
+          class="search-input"
+        />
+      </div>
+    </div>
+
+    <div class="components-grid">
+      {components.map(category => (
+        <div class="component-category" data-category={category.category}>
+          <h2 class="category-title">{category.category}</h2>
+          <div class="category-components">
+            {category.items.map(component => (
+              <div class="component-card" data-component-id={component.id}>
+                <h3 class="component-name">{component.name}</h3>
+                <p class="component-description">{component.description}</p>
+                
+                <div class="component-preview">
+                  <ComponentPreview 
+                    componentId={component.id} 
+                    defaultProps={component.defaultProps}
+                    client:load
+                  />
+                </div>
+                
+                <div class="component-code">
+                  <h4>Usage:</h4>
+                  <div class="code-container">
+                    <Code code={component.usage} lang="jsx" />
+                    <button class="copy-button" data-code={component.usage}>
+                      Copy Code
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</MainLayout>
+
+<script>
+  // Handle component filtering
+  const categoryFilter = document.getElementById('categoryFilter');
+  const searchInput = document.getElementById('componentSearch');
+  const componentCards = document.querySelectorAll('.component-card');
+  const categoryContainers = document.querySelectorAll('.component-category');
+  
+  function filterComponents() {
+    const category = categoryFilter.value;
+    const searchTerm = searchInput.value.toLowerCase();
+    
+    categoryContainers.forEach(categoryContainer => {
+      const categoryName = categoryContainer.dataset.category;
+      let hasVisibleComponents = false;
+      
+      // Skip category filtering if "all" is selected
+      const showCategory = category === 'all' || categoryName === category;
+      
+      if (!showCategory) {
+        categoryContainer.style.display = 'none';
+        return;
+      }
+      
+      const components = categoryContainer.querySelectorAll('.component-card');
+      
+      components.forEach(component => {
+        const componentName = component.querySelector('.component-name').textContent.toLowerCase();
+        const componentDesc = component.querySelector('.component-description').textContent.toLowerCase();
+        const matchesSearch = componentName.includes(searchTerm) || componentDesc.includes(searchTerm);
+        
+        if (matchesSearch) {
+          component.style.display = 'block';
+          hasVisibleComponents = true;
+        } else {
+          component.style.display = 'none';
+        }
+      });
+      
+      categoryContainer.style.display = hasVisibleComponents ? 'block' : 'none';
+    });
+  }
+  
+  categoryFilter.addEventListener('change', filterComponents);
+  searchInput.addEventListener('input', filterComponents);
+  
+  // Handle copy code buttons
+  document.querySelectorAll('.copy-button').forEach(button => {
+    button.addEventListener('click', () => {
+      const code = button.dataset.code;
+      navigator.clipboard.writeText(code).then(() => {
+        const originalText = button.textContent;
+        button.textContent = 'Copied!';
+        button.classList.add('copied');
+        
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.classList.remove('copied');
+        }, 2000);
+      });
+    });
+  });
+</script>
+
+<style>
+  .component-library {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .page-header {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--theme-divider);
+    padding-bottom: 1rem;
+  }
+  
+  .page-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .intro {
+    font-size: 1.2rem;
+    max-width: 800px;
+    margin-bottom: 1rem;
+  }
+  
+  .component-filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  
+  .filter-select,
+  .search-input {
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--theme-divider);
+    background-color: var(--theme-bg);
+    color: var(--theme-text);
+    font-size: 1rem;
+  }
+  
+  .filter-select {
+    min-width: 200px;
+  }
+  
+  .search-container {
+    flex-grow: 1;
+  }
+  
+  .search-input {
+    width: 100%;
+    min-width: 250px;
+  }
+  
+  .component-category {
+    margin-bottom: 3rem;
+  }
+  
+  .category-title {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--theme-divider);
+    color: var(--theme-accent);
+  }
+  
+  .category-components {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+  }
+  
+  .component-card {
+    background-color: var(--theme-bg-offset);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .component-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .component-name {
+    font-size: 1.5rem;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+  }
+  
+  .component-description {
+    color: var(--theme-text-light);
+    margin-bottom: 1.5rem;
+  }
+  
+  .component-preview {
+    background-color: var(--theme-bg);
+    border: 1px solid var(--theme-divider);
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    min-height: 100px;
+  }
+  
+  .component-code {
+    background-color: var(--theme-code-bg);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  
+  .component-code h4 {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    font-size: 1rem;
+  }
+  
+  .code-container {
+    position: relative;
+  }
+  
+  .copy-button {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background-color: var(--theme-accent);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+  }
+  
+  .copy-button:hover {
+    opacity: 1;
+  }
+  
+  .copy-button.copied {
+    background-color: #2ecc71;
+  }
+  
+  @media (max-width: 768px) {
+    .category-components {
+      grid-template-columns: 1fr;
+    }
+    
+    .component-filters {
+      flex-direction: column;
+    }
+    
+    .search-container {
+      width: 100%;
+    }
+  }
+</style> 

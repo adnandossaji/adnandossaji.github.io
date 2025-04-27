@@ -1,0 +1,175 @@
+---
+// Component to visualize pepper heat levels (SHU)
+
+interface PepperHeatInfo {
+  name: string;
+  shuMin: number;
+  shuMax: number;
+  color: string; // Color for the bar
+}
+
+// Data for the peppers to display on the scale
+// Using logarithmic scale makes visualization better for wide ranges
+const peppers: PepperHeatInfo[] = [
+  { name: 'Bell Pepper', shuMin: 0, shuMax: 0, color: '#a3e635' }, // green-400
+  { name: 'Shishito', shuMin: 50, shuMax: 200, color: '#facc15' }, // yellow-400
+  { name: 'Poblano', shuMin: 1000, shuMax: 2000, color: '#fb923c' }, // orange-400
+  { name: 'Fingerlong', shuMin: 1000, shuMax: 2500, color: '#f87171' }, // red-400
+  { name: 'Jalapeño', shuMin: 2500, shuMax: 8000, color: '#ef4444' }, // red-500
+  { name: 'Habanero', shuMin: 100000, shuMax: 350000, color: '#b91c1c' }, // red-800
+];
+
+// Determine max SHU for scaling (add a little padding)
+// Use log10 for better visualization of wide ranges
+const maxShuLog = Math.log10(Math.max(...peppers.map(p => Math.max(p.shuMax, 1))) + 1) * 1.1;
+
+function getLogPosition(shu: number): number {
+  // Add 1 to handle 0 SHU, clamp minimum log value slightly above 0
+  const logVal = Math.log10(Math.max(shu, 0) + 1);
+  return Math.max(0, (logVal / maxShuLog) * 100);
+}
+---
+
+<div class="heat-scale-visualizer">
+  <h4>Pepper Heat Scale (Scoville Heat Units - Logarithmic Scale)</h4>
+  <div class="scale-container">
+    <div class="scale-bar">
+      <div class="gradient"></div>
+      <!-- Markers for reference -->
+      <div class="marker" style={`left: ${getLogPosition(1000)}%;`}>
+        <span class="marker-label">1k</span>
+      </div>
+      <div class="marker" style={`left: ${getLogPosition(10000)}%;`}>
+         <span class="marker-label">10k</span>
+      </div>
+      <div class="marker" style={`left: ${getLogPosition(100000)}%;`}>
+        <span class="marker-label">100k</span>
+      </div>
+       <div class="marker" style={`left: ${getLogPosition(1000000)}%;`}>
+         <span class="marker-label">1M</span>
+      </div>
+
+      <!-- Pepper Ranges -->
+      {peppers.map(pepper => {
+        const minPos = getLogPosition(pepper.shuMin);
+        const maxPos = getLogPosition(pepper.shuMax);
+        const width = Math.max(0.5, maxPos - minPos); // Ensure a minimum visible width
+        const isPoint = pepper.shuMin === pepper.shuMax && pepper.shuMin === 0; // Special case for Bell Pepper
+
+        return (
+          <div 
+            class="pepper-range" 
+            title={`${pepper.name}: ${pepper.shuMin.toLocaleString()} - ${pepper.shuMax.toLocaleString()} SHU`}
+            style={`left: ${minPos}%; width: ${isPoint ? '1px' : width + '%'}; background-color: ${pepper.color};`}
+          >
+            <span class="pepper-label">{pepper.name}</span>
+          </div>
+        );
+      })}
+    </div>
+    <div class="scale-labels">
+      <span>Mild</span>
+      <span>Medium</span>
+      <span>Hot</span>
+      <span>Extreme</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .heat-scale-visualizer {
+    background-color: #f9fafb; /* gray-50 */
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    font-family: sans-serif;
+  }
+  .heat-scale-visualizer h4 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #374151; /* gray-700 */
+    font-size: 1.1rem;
+  }
+  .scale-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 50px; /* Space for labels */
+  }
+  .scale-bar {
+    width: 100%;
+    height: 25px;
+    border-radius: 12.5px;
+    position: relative;
+    overflow: hidden;
+  }
+  .gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, #a3e635, #facc15, #fb923c, #f87171, #ef4444, #b91c1c); /* Tailwind colors: green-400 to red-800 */
+    opacity: 0.3;
+  }
+  .pepper-range {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    border-radius: 0; /* Can adjust for rounded ends if width is large enough */
+    cursor: help;
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s ease-out;
+  }
+   .pepper-range:hover {
+     transform: scaleY(1.1);
+     z-index: 10;
+   }
+   /* Style for Bell Pepper point */
+   .pepper-range[style*="width: 1px"] {
+     border-left: 2px solid #a3e635;
+     background-color: transparent !important; /* Override background */
+   }
+  .pepper-label {
+    position: absolute;
+    bottom: -25px; /* Position below the bar */
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 0.75rem;
+    color: #4b5563; /* gray-600 */
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+  .marker {
+    position: absolute;
+    bottom: -5px; /* Below the bar */
+    height: 30px; /* Extends above and below */
+    width: 1px;
+    background-color: #9ca3af; /* gray-400 */
+    z-index: 5;
+  }
+  .marker-label {
+    position: absolute;
+    bottom: -45px; /* Further below */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    color: #6b7280; /* gray-500 */
+  }
+  .scale-labels {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 5%; /* Align roughly with gradient sections */
+    margin-top: 5px; 
+    font-size: 0.8rem;
+    color: #6b7280; /* gray-500 */
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+  }
+</style> 

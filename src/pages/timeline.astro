@@ -1,0 +1,319 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import EventTimeline from '../components/timeline/EventTimeline';
+
+// Sample timeline data
+const timelineEvents = [
+  {
+    id: "1",
+    date: "2023-01-15",
+    title: "Project Launch",
+    description: "We officially launched our website redesign project with a kick-off meeting.",
+    category: "milestone",
+    icon: "rocket"
+  },
+  {
+    id: "2",
+    date: "2023-02-28",
+    title: "Design Phase Completed",
+    description: "Finalized all design mockups and received client approval to move forward.",
+    category: "design",
+    icon: "palette"
+  },
+  {
+    id: "3",
+    date: "2023-04-10",
+    title: "Development Sprint",
+    description: "Completed the first major development sprint with core functionality in place.",
+    category: "development",
+    icon: "code"
+  },
+  {
+    id: "4",
+    date: "2023-05-20",
+    title: "User Testing",
+    description: "Conducted user testing sessions with focus groups to gather feedback.",
+    category: "testing",
+    icon: "users"
+  },
+  {
+    id: "5",
+    date: "2023-06-30",
+    title: "Website Launch",
+    description: "Successfully deployed the new website with all planned features.",
+    category: "milestone",
+    icon: "globe"
+  },
+  {
+    id: "6",
+    date: "2023-08-15",
+    title: "Post-Launch Updates",
+    description: "Released first batch of updates based on user feedback and analytics.",
+    category: "development",
+    icon: "chart-line"
+  }
+];
+---
+
+<MainLayout title="Interactive Timeline" description="Visualize important events and milestones with our interactive timeline">
+  <div class="timeline-page">
+    <header class="page-header">
+      <h1>Interactive Timeline</h1>
+      <p class="intro">
+        Visualize your journey, showcase project milestones, or highlight company history with an interactive, filterable timeline.
+      </p>
+    </header>
+
+    <div class="timeline-controls">
+      <div class="filter-container">
+        <label for="categoryFilter">Filter by Category:</label>
+        <select id="categoryFilter" class="category-select">
+          <option value="all">All Categories</option>
+          <option value="milestone">Milestones</option>
+          <option value="design">Design</option>
+          <option value="development">Development</option>
+          <option value="testing">Testing</option>
+        </select>
+      </div>
+      
+      <div class="view-toggle">
+        <label>View Mode:</label>
+        <div class="toggle-buttons">
+          <button id="verticalView" class="toggle-button active">Vertical</button>
+          <button id="horizontalView" class="toggle-button">Horizontal</button>
+        </div>
+      </div>
+    </div>
+
+    <EventTimeline 
+      events={timelineEvents} 
+      client:load
+    />
+
+    <div class="feature-benefits">
+      <h2>Why Use an Interactive Timeline?</h2>
+      <div class="benefits-grid">
+        <div class="benefit-card">
+          <h3>Visualize Your Journey</h3>
+          <p>Transform dates and events into a visually engaging story that showcases your progress.</p>
+        </div>
+        <div class="benefit-card">
+          <h3>Highlight Key Milestones</h3>
+          <p>Draw attention to important achievements and significant moments in your history.</p>
+        </div>
+        <div class="benefit-card">
+          <h3>Interactive Experience</h3>
+          <p>Give visitors an engaging way to explore your history with filtering and different viewing modes.</p>
+        </div>
+        <div class="benefit-card">
+          <h3>Responsive Design</h3>
+          <p>Works beautifully on all devices, from desktop to mobile, with optimized layouts.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="implementation-guide">
+      <h2>How to Implement in Your Project</h2>
+      <p>
+        This timeline component is designed to be easily integrated into any Astro project.
+        Simply import the component and pass your event data.
+      </p>
+      <pre class="code-example">
+{`import EventTimeline from '../components/timeline/EventTimeline';
+
+// Your timeline data
+const timelineData = [
+  {
+    id: "1",
+    date: "2023-01-15",
+    title: "Event Title",
+    description: "Event description here",
+    category: "category-name",
+    icon: "icon-name"
+  }
+  // More events...
+];
+
+<EventTimeline events={timelineData} client:load />`}
+      </pre>
+    </div>
+  </div>
+</MainLayout>
+
+<script>
+  // Handle category filtering
+  const categoryFilter = document.getElementById('categoryFilter') as HTMLSelectElement;
+  const timelineContainer = document.querySelector('.timeline-container');
+  
+  categoryFilter?.addEventListener('change', () => {
+    const selectedCategory = categoryFilter.value;
+    
+    // Dispatch custom event for the React component to handle
+    const filterEvent = new CustomEvent('timelineFilter', {
+      detail: { category: selectedCategory }
+    });
+    
+    document.dispatchEvent(filterEvent);
+  });
+  
+  // Handle view toggle
+  const verticalViewBtn = document.getElementById('verticalView');
+  const horizontalViewBtn = document.getElementById('horizontalView');
+  
+  verticalViewBtn?.addEventListener('click', () => {
+    verticalViewBtn.classList.add('active');
+    horizontalViewBtn?.classList.remove('active');
+    
+    // Dispatch custom event for the React component to handle
+    const viewEvent = new CustomEvent('timelineViewChange', {
+      detail: { view: 'vertical' }
+    });
+    
+    document.dispatchEvent(viewEvent);
+  });
+  
+  horizontalViewBtn?.addEventListener('click', () => {
+    horizontalViewBtn.classList.add('active');
+    verticalViewBtn?.classList.remove('active');
+    
+    // Dispatch custom event for the React component to handle
+    const viewEvent = new CustomEvent('timelineViewChange', {
+      detail: { view: 'horizontal' }
+    });
+    
+    document.dispatchEvent(viewEvent);
+  });
+</script>
+
+<style>
+  .timeline-page {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .page-header {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--theme-divider);
+    padding-bottom: 1rem;
+  }
+  
+  .page-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .intro {
+    font-size: 1.2rem;
+    max-width: 800px;
+    margin-bottom: 1rem;
+  }
+  
+  .timeline-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+    background-color: var(--theme-bg-offset);
+    padding: 1rem;
+    border-radius: 8px;
+  }
+  
+  .filter-container,
+  .view-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .category-select {
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--theme-divider);
+    background-color: var(--theme-bg);
+    color: var(--theme-text);
+  }
+  
+  .toggle-buttons {
+    display: flex;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid var(--theme-divider);
+  }
+  
+  .toggle-button {
+    padding: 0.5rem 1rem;
+    border: none;
+    background-color: var(--theme-bg);
+    color: var(--theme-text);
+    cursor: pointer;
+  }
+  
+  .toggle-button.active {
+    background-color: var(--theme-accent);
+    color: white;
+  }
+  
+  .feature-benefits {
+    margin-top: 4rem;
+    margin-bottom: 3rem;
+  }
+  
+  .feature-benefits h2 {
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+  }
+  
+  .benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+  }
+  
+  .benefit-card {
+    background-color: var(--theme-bg-offset);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .benefit-card h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--theme-accent);
+  }
+  
+  .implementation-guide {
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+  }
+  
+  .implementation-guide h2 {
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+  }
+  
+  .code-example {
+    background-color: var(--theme-code-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    overflow: auto;
+    font-family: monospace;
+    font-size: 0.9rem;
+    white-space: pre;
+    color: var(--theme-code-text);
+  }
+  
+  @media (max-width: 768px) {
+    .timeline-controls {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .filter-container,
+    .view-toggle {
+      width: 100%;
+    }
+  }
+</style> 

@@ -1,0 +1,138 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import ThemeCreator from '../components/theme/ThemeCreator';
+---
+
+<MainLayout title="Theme Creator" description="Create and customize your site's color theme with our interactive theme generator">
+  <div class="theme-creator-page">
+    <header class="page-header">
+      <h1>Interactive Theme Creator</h1>
+      <p class="intro">
+        Design your perfect color palette with real-time preview. Customize colors, generate harmonious schemes, and export as CSS variables.
+      </p>
+    </header>
+
+    <ThemeCreator client:load />
+
+    <div class="feature-benefits">
+      <h2>Why Use a Theme Generator?</h2>
+      <div class="benefits-grid">
+        <div class="benefit-card">
+          <h3>Real-time Preview</h3>
+          <p>See how your color choices affect UI elements instantly without changing your actual site.</p>
+        </div>
+        <div class="benefit-card">
+          <h3>Harmonious Palettes</h3>
+          <p>Generate complementary color schemes based on color theory principles.</p>
+        </div>
+        <div class="benefit-card">
+          <h3>Accessibility Built-in</h3>
+          <p>Get instant feedback on color contrast and accessibility compliance.</p>
+        </div>
+        <div class="benefit-card">
+          <h3>Easy Implementation</h3>
+          <p>Export your theme as CSS variables ready to use in your project.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="implementation-guide">
+      <h2>How to Use Your New Theme</h2>
+      <p>
+        Once you've created your perfect color palette, simply export the CSS variables and add them to your stylesheet.
+        The exported code will be ready to use in any CSS file or directly in your HTML.
+      </p>
+      <pre class="code-example">
+{`:root {
+  /* Your custom color variables */
+  --theme-primary: #3a86ff;
+  --theme-secondary: #8338ec;
+  --theme-accent: #ff006e;
+  --theme-background: #ffffff;
+  --theme-text: #333333;
+  /* And more... */
+}`}
+      </pre>
+    </div>
+  </div>
+</MainLayout>
+
+<style>
+  .theme-creator-page {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .page-header {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--theme-divider);
+    padding-bottom: 1rem;
+  }
+  
+  .page-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .intro {
+    font-size: 1.2rem;
+    max-width: 800px;
+    margin-bottom: 1rem;
+  }
+  
+  .feature-benefits {
+    margin-top: 4rem;
+    margin-bottom: 3rem;
+  }
+  
+  .feature-benefits h2 {
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+  }
+  
+  .benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+  }
+  
+  .benefit-card {
+    background-color: var(--theme-bg-offset);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .benefit-card h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--theme-accent);
+  }
+  
+  .implementation-guide {
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+  }
+  
+  .implementation-guide h2 {
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+  }
+  
+  .code-example {
+    background-color: var(--theme-code-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    overflow: auto;
+    font-family: monospace;
+    font-size: 0.9rem;
+    white-space: pre;
+    color: var(--theme-code-text);
+  }
+  
+  @media (max-width: 768px) {
+    .benefits-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style> 

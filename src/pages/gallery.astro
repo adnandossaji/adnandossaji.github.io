@@ -1,0 +1,108 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import GalleryComponent from '../components/gallery/Gallery';
+import ImageUpload from '../components/gallery/ImageUpload';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
+// Interface for gallery images
+interface GalleryImage {
+  id: string;
+  src: string;
+  thumbnail?: string;
+  alt: string;
+  title: string;
+  description?: string;
+  tags: string[];
+  date?: string;
+}
+
+// Array to hold all gallery images
+let images: GalleryImage[] = [];
+
+// Get direct image files from gallery-images directory
+const galleryImagesDir = path.join(process.cwd(), 'public', 'gallery-images');
+
+try {
+  const imageFiles = await fs.readdir(galleryImagesDir);
+  
+  // Process each image file
+  for (const file of imageFiles) {
+    // Only process image files
+    const ext = path.extname(file).toLowerCase();
+    if (!['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'].includes(ext)) {
+      continue;
+    }
+    
+    const id = path.basename(file, path.extname(file));
+    const fileName = path.basename(file);
+    
+    // Get file stats for date
+    try {
+      const filePath = path.join(galleryImagesDir, file);
+      const stats = await fs.stat(filePath);
+      
+      // Add the image
+      images.push({
+        id,
+        src: `/gallery-images/${fileName}`,
+        thumbnail: `/gallery-images/${fileName}`,
+        alt: id.replace(/-/g, ' '), // Use filename as alt
+        title: id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), // Capitalize title
+        tags: ['image'],
+        date: stats.mtime.toISOString()
+      });
+    } catch (statErr) {
+      console.error(`Error getting stats for file ${file}:`, statErr);
+    }
+  }
+} catch (err) {
+  console.log('No gallery-images directory found or error accessing it:', err);
+}
+
+// Sort by date (newest first)
+images = images.sort((a, b) => {
+  if (!a.date || !b.date) return 0;
+  return new Date(b.date).getTime() - new Date(a.date).getTime();
+});
+
+// Count the number of images
+const imageCount = images.length;
+---
+
+<MainLayout title="Image Gallery" description="Browse through our collection of images">
+  <div class="gallery-page">
+    <header class="page-header">
+      <h1>Image Gallery</h1>
+      <p class="intro">
+        Browse through our collection of {imageCount} images. To add images, simply place them in the 'public/gallery-images' folder.
+      </p>
+    </header>
+    
+    <GalleryComponent images={images} client:load />
+  </div>
+</MainLayout>
+
+<style>
+  .gallery-page {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .page-header {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--theme-divider);
+    padding-bottom: 1rem;
+  }
+  
+  .page-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .intro {
+    font-size: 1.2rem;
+    max-width: 800px;
+    margin-bottom: 1rem;
+  }
+</style> 

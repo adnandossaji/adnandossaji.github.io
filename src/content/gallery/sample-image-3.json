@@ -1,0 +1,8 @@
+{
+  "title": "Sample Image 3",
+  "description": "Third amazing sample image for the gallery",
+  "src": "/images/sample-image-3.jpg",
+  "alt": "A third sample image",
+  "tags": ["sample", "lifestyle"],
+  "date": "2023-12-05"
+} 

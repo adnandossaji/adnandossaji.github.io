@@ -6,5 +6,13 @@ import sitemap from '@astrojs/sitemap';
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://adnandossaji.github.io',
-	integrations: [mdx(), sitemap()],
+	integrations: [
+		mdx({
+			extendMarkdownConfig: true,
+		}), 
+		sitemap()
+	],
+	markdown: {
+		syntaxHighlight: 'prism',
+	}
 });

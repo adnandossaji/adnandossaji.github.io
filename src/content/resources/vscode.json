@@ -1,0 +1,11 @@
+{
+  "title": "Visual Studio Code",
+  "description": "Free and open-source code editor with built-in Git commands, debugging, syntax highlighting, intelligent code completion, snippets, and code refactoring.",
+  "url": "https://code.visualstudio.com/",
+  "category": "Development",
+  "tags": ["editor", "ide", "code", "development"],
+  "isFree": true,
+  "featured": false,
+  "dateAdded": "2023-07-30",
+  "icon": "code"
+} 

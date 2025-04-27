@@ -1,0 +1,11 @@
+{
+  "title": "Fathom Analytics",
+  "description": "Simple, privacy-focused website analytics that doesn't track or store personal data of your users. A GDPR compliant alternative to Google Analytics.",
+  "url": "https://usefathom.com/",
+  "category": "Marketing",
+  "tags": ["analytics", "privacy", "marketing", "website"],
+  "isFree": false,
+  "featured": false,
+  "dateAdded": "2023-08-25",
+  "icon": "document"
+} 

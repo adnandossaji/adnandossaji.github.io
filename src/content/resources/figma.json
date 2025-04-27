@@ -1,0 +1,11 @@
+{
+  "title": "Figma",
+  "description": "Figma is a collaborative web application for interface design, with additional offline features enabled by desktop applications for macOS and Windows.",
+  "url": "https://www.figma.com/",
+  "category": "Design",
+  "tags": ["design", "ui", "prototyping", "collaboration"],
+  "isFree": true,
+  "featured": true,
+  "dateAdded": "2023-08-20",
+  "icon": "design"
+} 

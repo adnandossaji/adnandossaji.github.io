@@ -1,0 +1,11 @@
+{
+  "title": "Trello",
+  "description": "Visual collaboration tool that creates a shared perspective on any project. Trello's boards, lists, and cards help teams organize and prioritize projects.",
+  "url": "https://trello.com/",
+  "category": "Productivity",
+  "tags": ["kanban", "project management", "collaboration", "organization"],
+  "isFree": true,
+  "featured": false,
+  "dateAdded": "2023-07-15",
+  "icon": "document"
+} 

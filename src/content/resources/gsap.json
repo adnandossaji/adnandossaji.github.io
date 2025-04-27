@@ -1,0 +1,11 @@
+{
+  "title": "GSAP (GreenSock Animation Platform)",
+  "description": "Professional-grade JavaScript animation for the modern web. Animate anything - CSS, SVG, React, Vue, WebGL, colors, strings, motion paths, generic objects - anything!",
+  "url": "https://greensock.com/gsap/",
+  "category": "Development",
+  "tags": ["animation", "javascript", "web", "motion"],
+  "isFree": true,
+  "featured": false,
+  "dateAdded": "2023-10-05",
+  "icon": "animation"
+} 

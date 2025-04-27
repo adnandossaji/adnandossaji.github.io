@@ -1,0 +1,11 @@
+{
+  "title": "Astro",
+  "description": "Build faster websites with less client-side JavaScript. Astro is a web framework for building content-focused, fast websites.",
+  "url": "https://astro.build/",
+  "category": "Development",
+  "tags": ["web", "framework", "static site", "javascript"],
+  "isFree": true,
+  "featured": true,
+  "dateAdded": "2023-08-15",
+  "icon": "code"
+} 

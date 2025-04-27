@@ -1,0 +1,11 @@
+{
+  "title": "Canva",
+  "description": "Online design and publishing tool with templates for social media, presentations, posters, and more. Create professional designs with drag-and-drop simplicity.",
+  "url": "https://www.canva.com/",
+  "category": "Design",
+  "tags": ["design", "graphics", "social media", "templates"],
+  "isFree": true,
+  "featured": false,
+  "dateAdded": "2023-09-01",
+  "icon": "design"
+} 

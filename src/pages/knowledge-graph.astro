@@ -1,0 +1,959 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import * as d3 from 'd3';
+---
+
+<MainLayout title="Knowledge Graph" description="Interactive visualization of skills, concepts, and their connections">
+  <div class="knowledge-page">
+    <header class="page-header">
+      <h1>Knowledge Graph</h1>
+      <p class="intro">
+        Explore connections between skills, concepts, and knowledge domains. 
+        Discover learning paths and understand how different topics relate to each other.
+      </p>
+    </header>
+
+    <div class="controls">
+      <div class="search-container">
+        <input 
+          type="text" 
+          id="searchInput" 
+          placeholder="Search skills or topics..." 
+          class="search-input"
+        />
+      </div>
+      
+      <div class="filter-container">
+        <select id="domainFilter" class="domain-filter">
+          <option value="all">All Domains</option>
+          <option value="web">Web Development</option>
+          <option value="data">Data Science</option>
+          <option value="design">Design</option>
+          <option value="ai">AI & Machine Learning</option>
+          <option value="soft">Soft Skills</option>
+        </select>
+        
+        <div class="complexity-filter">
+          <label>Complexity Level:</label>
+          <div class="slider-container">
+            <input type="range" min="1" max="5" value="3" id="complexitySlider" />
+            <div class="slider-labels">
+              <span>Beginner</span>
+              <span>Advanced</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="view-toggles">
+      <button id="graphView" class="view-toggle active">Graph View</button>
+      <button id="tableView" class="view-toggle">Table View</button>
+      <button id="pathView" class="view-toggle">Learning Path</button>
+    </div>
+
+    <div class="knowledge-content">
+      <div id="graphContainer" class="graph-container">
+        <!-- Graph will be rendered here -->
+        <div class="loading-placeholder">Loading knowledge graph...</div>
+      </div>
+      
+      <div id="tableContainer" class="table-container" style="display: none;">
+        <!-- Table will be rendered here -->
+      </div>
+      
+      <div id="pathContainer" class="path-container" style="display: none;">
+        <!-- Learning path will be rendered here -->
+      </div>
+    </div>
+    
+    <div class="details-panel">
+      <div class="panel-header">
+        <h3 id="detailTitle">Select a node to see details</h3>
+        <button id="closePanel" class="close-button">&times;</button>
+      </div>
+      <div id="detailContent" class="panel-content">
+        <p class="select-prompt">Click on any node in the graph to view its details, related skills, and learning resources.</p>
+      </div>
+    </div>
+  </div>
+</MainLayout>
+
+<script>
+  // Explicitly import D3
+  import * as d3 from 'd3';
+
+  interface SkillData {
+    description: string;
+    resources: string[];
+    related: string[];
+  }
+
+  interface SkillMap {
+    [key: string]: SkillData;
+  }
+
+  interface KnowledgeNode {
+    id: string;
+    label: string;
+    domain: string;
+    level: number;
+    color: string;
+    x?: number;
+    y?: number;
+    fx?: number | null;
+    fy?: number | null;
+    vx?: number;
+    vy?: number;
+    index?: number;
+  }
+
+  interface D3KnowledgeEdge {
+    source: KnowledgeNode;
+    target: KnowledgeNode;
+    strength: number;
+    dashed?: boolean;
+  }
+  
+  interface KnowledgeEdge {
+    from: string;
+    to: string;
+    strength: number;
+    dashed?: boolean;
+  }
+
+  // Extend Window interface to include our custom properties
+  declare global {
+    interface Window {
+      knowledgeData: {
+        nodes: KnowledgeNode[];
+        edges: KnowledgeEdge[];
+        details: Record<string, any>;
+      };
+      showNodeDetails: (nodeId: string) => void;
+    }
+  }
+
+  // Only run client-side
+  document.addEventListener('DOMContentLoaded', () => {
+    const graphContainer = document.getElementById('graphContainer');
+    const tableContainer = document.getElementById('tableContainer');
+    const pathContainer = document.getElementById('pathContainer');
+    const graphViewBtn = document.getElementById('graphView');
+    const tableViewBtn = document.getElementById('tableView');
+    const pathViewBtn = document.getElementById('pathView');
+    const detailsPanel = document.querySelector('.details-panel');
+    const closePanel = document.getElementById('closePanel');
+    const detailTitle = document.getElementById('detailTitle');
+    const detailContent = document.getElementById('detailContent');
+    const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+    const domainFilter = document.getElementById('domainFilter') as HTMLSelectElement;
+    const complexitySlider = document.getElementById('complexitySlider') as HTMLInputElement;
+    
+    // Ensure all elements exist before proceeding
+    if (!graphContainer || !tableContainer || !pathContainer || 
+        !graphViewBtn || !tableViewBtn || !pathViewBtn || 
+        !detailsPanel || !closePanel || !detailTitle || 
+        !detailContent || !searchInput || !domainFilter || !complexitySlider) {
+      console.error('One or more required DOM elements not found');
+      return;
+    }
+    
+    // Sample knowledge data (in a real app, this would come from a database or API)
+    const knowledgeData = {
+      nodes: [
+        { id: 'html', label: 'HTML', domain: 'web', level: 1, color: '#e44d26' },
+        { id: 'css', label: 'CSS', domain: 'web', level: 1, color: '#264de4' },
+        { id: 'js', label: 'JavaScript', domain: 'web', level: 2, color: '#f7df1e' },
+        { id: 'react', label: 'React', domain: 'web', level: 3, color: '#61dafb' },
+        { id: 'astro', label: 'Astro', domain: 'web', level: 3, color: '#ff5d01' },
+        { id: 'python', label: 'Python', domain: 'data', level: 2, color: '#306998' },
+        { id: 'pandas', label: 'Pandas', domain: 'data', level: 3, color: '#150458' },
+        { id: 'ml', label: 'Machine Learning', domain: 'ai', level: 4, color: '#01a3a4' },
+        { id: 'ui', label: 'UI Design', domain: 'design', level: 2, color: '#ff7675' },
+        { id: 'ux', label: 'UX Design', domain: 'design', level: 2, color: '#74b9ff' },
+        { id: 'figma', label: 'Figma', domain: 'design', level: 2, color: '#a29bfe' },
+        { id: 'communication', label: 'Communication', domain: 'soft', level: 1, color: '#55efc4' },
+        { id: 'teamwork', label: 'Teamwork', domain: 'soft', level: 1, color: '#81ecec' },
+      ],
+      edges: [
+        { from: 'html', to: 'css', strength: 0.9 },
+        { from: 'html', to: 'js', strength: 0.7 },
+        { from: 'css', to: 'js', strength: 0.8 },
+        { from: 'js', to: 'react', strength: 0.9 },
+        { from: 'js', to: 'astro', strength: 0.7 },
+        { from: 'react', to: 'astro', strength: 0.6 },
+        { from: 'python', to: 'pandas', strength: 0.9 },
+        { from: 'python', to: 'ml', strength: 0.7 },
+        { from: 'pandas', to: 'ml', strength: 0.8 },
+        { from: 'ui', to: 'ux', strength: 0.9 },
+        { from: 'ui', to: 'figma', strength: 0.8 },
+        { from: 'ux', to: 'figma', strength: 0.9 },
+        { from: 'js', to: 'python', strength: 0.4, dashed: true },
+        { from: 'ml', to: 'communication', strength: 0.5, dashed: true },
+        { from: 'communication', to: 'teamwork', strength: 0.8 },
+        { from: 'html', to: 'ui', strength: 0.5, dashed: true },
+      ],
+      details: {
+        'html': {
+          description: 'HTML (HyperText Markup Language) is the standard markup language for documents designed to be displayed in a web browser.',
+          resources: ['MDN Web Docs', 'W3Schools', 'freeCodeCamp'],
+          related: ['css', 'js', 'ui']
+        },
+        'css': {
+          description: 'CSS (Cascading Style Sheets) is a style sheet language used for describing the presentation of a document written in HTML.',
+          resources: ['CSS-Tricks', 'MDN Web Docs', 'W3Schools'],
+          related: ['html', 'js', 'ui']
+        },
+        'js': {
+          description: 'JavaScript is a programming language that enables interactive web pages and is an essential part of web applications.',
+          resources: ['JavaScript.info', 'Eloquent JavaScript', 'MDN Web Docs'],
+          related: ['html', 'css', 'react', 'astro']
+        },
+        'react': {
+          description: 'React is a JavaScript library for building user interfaces, particularly single-page applications.',
+          resources: ['React Docs', 'React for Beginners', 'React Patterns'],
+          related: ['js', 'astro']
+        },
+        'astro': {
+          description: 'Astro is a modern static site builder with a focus on performance and developer experience.',
+          resources: ['Astro Docs', 'Astro Blog', 'Astro Templates'],
+          related: ['js', 'react']
+        },
+        'python': {
+          description: 'Python is a high-level, interpreted programming language known for its readability and versatility.',
+          resources: ['Python.org', 'Real Python', 'Python Crash Course'],
+          related: ['pandas', 'ml']
+        },
+        'pandas': {
+          description: 'Pandas is a fast, powerful, flexible and easy to use open source data analysis and manipulation tool, built on top of Python.',
+          resources: ['Pandas Docs', 'Python for Data Analysis', 'Kaggle Tutorials'],
+          related: ['python', 'ml']
+        },
+        'ml': {
+          description: 'Machine Learning is a field of study that gives computers the ability to learn without being explicitly programmed.',
+          resources: ['Machine Learning Mastery', 'Fast.ai', 'Kaggle Courses'],
+          related: ['python', 'pandas']
+        },
+        'ui': {
+          description: 'UI (User Interface) Design focuses on anticipating what users might need to do and ensuring that the interface has elements that are easy to access, understand, and use.',
+          resources: ['UI Design Patterns', 'Material Design', 'Apple Human Interface Guidelines'],
+          related: ['ux', 'figma']
+        },
+        'ux': {
+          description: 'UX (User Experience) Design is the process of creating products that provide meaningful and relevant experiences to users.',
+          resources: ['Nielsen Norman Group', 'UX Collective', 'Smashing Magazine'],
+          related: ['ui', 'figma']
+        },
+        'figma': {
+          description: 'Figma is a vector graphics editor and prototyping tool primarily web-based, with additional offline features enabled by desktop applications.',
+          resources: ['Figma Tutorials', 'Figma Community', 'Figma YouTube Channel'],
+          related: ['ui', 'ux']
+        },
+        'communication': {
+          description: 'Effective communication is the process of exchanging ideas, thoughts, opinions, knowledge, and data so that the message is received and understood.',
+          resources: ['Effective Communication Skills', 'Communication in the Workplace', 'Public Speaking Tips'],
+          related: ['teamwork']
+        },
+        'teamwork': {
+          description: 'Teamwork is the collaborative effort of a group to achieve a common goal or to complete a task in the most effective and efficient way.',
+          resources: ['Team Building Exercises', 'Conflict Resolution', 'Collaborative Problem Solving'],
+          related: ['communication']
+        }
+      }
+    };
+    
+    // Switch between views
+    const showView = (viewType: string): void => {
+      // Reset active state
+      [graphViewBtn, tableViewBtn, pathViewBtn].forEach(btn => btn.classList.remove('active'));
+      
+      // Hide all containers
+      if (graphContainer) graphContainer.style.display = 'none';
+      if (tableContainer) tableContainer.style.display = 'none';
+      if (pathContainer) pathContainer.style.display = 'none';
+      
+      // Show the selected container
+      if (viewType === 'graph' && graphContainer) {
+        graphContainer.style.display = 'block';
+        graphViewBtn.classList.add('active');
+        renderGraph();
+      } else if (viewType === 'table' && tableContainer) {
+        tableContainer.style.display = 'block';
+        tableViewBtn.classList.add('active');
+        renderTable();
+      } else if (viewType === 'path' && pathContainer) {
+        pathContainer.style.display = 'block';
+        pathViewBtn.classList.add('active');
+        renderLearningPath();
+      }
+    };
+    
+    // Filter data based on search, domain, and complexity
+    function filterData() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const domain = domainFilter.value;
+      const complexity = parseInt(complexitySlider.value);
+      
+      return {
+        nodes: knowledgeData.nodes.filter(node => {
+          const matchesSearch = node.label.toLowerCase().includes(searchTerm);
+          const matchesDomain = domain === 'all' || node.domain === domain;
+          const matchesComplexity = node.level <= complexity;
+          return matchesSearch && matchesDomain && matchesComplexity;
+        }),
+        edges: knowledgeData.edges.filter(edge => {
+          const filteredNodeIds = knowledgeData.nodes
+            .filter(n => {
+              const matchesDomain = domain === 'all' || n.domain === domain;
+              const matchesComplexity = n.level <= complexity;
+              return matchesDomain && matchesComplexity;
+            })
+            .map(n => n.id);
+          
+          return filteredNodeIds.includes(edge.from) && filteredNodeIds.includes(edge.to);
+        })
+      };
+    }
+    
+    // Render graph view
+    const renderGraph = (): void => {
+      if (!graphContainer) return;
+      
+      const filteredData = filterData();
+      
+      // Clear previous content
+      graphContainer.innerHTML = '';
+      
+      // Set dimensions and create SVG
+      const width = graphContainer.clientWidth;
+      const height = 500;
+      
+      const svg = d3.select(graphContainer)
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height)
+        .attr('viewBox', [0, 0, width, height])
+        .attr('style', 'max-width: 100%; height: auto;');
+
+      // Transform edges to match D3's format
+      const d3Edges = filteredData.edges.map(edge => {
+        const source = filteredData.nodes.find(node => node.id === edge.from);
+        const target = filteredData.nodes.find(node => node.id === edge.to);
+        if (source && target) {
+          return {
+            source,
+            target,
+            strength: edge.strength,
+            dashed: edge.dashed
+          };
+        }
+        return null;
+      }).filter(Boolean) as D3KnowledgeEdge[];
+      
+      // Create force simulation
+      const simulation = d3.forceSimulation<KnowledgeNode>(filteredData.nodes)
+        .force('link', d3.forceLink<KnowledgeNode, D3KnowledgeEdge>(d3Edges)
+          .id((d) => d.id)
+          .distance((d) => 100 / (d.strength || 0.5)))
+        .force('charge', d3.forceManyBody().strength(-300))
+        .force('center', d3.forceCenter(width / 2, height / 2))
+        .force('collision', d3.forceCollide().radius(50));
+      
+      // Create links
+      const link = svg.append('g')
+        .selectAll('line')
+        .data(d3Edges)
+        .enter()
+        .append('line')
+        .attr('stroke', '#999')
+        .attr('stroke-opacity', 0.6)
+        .attr('stroke-width', (d) => d.strength ? d.strength * 3 : 1)
+        .attr('stroke-dasharray', (d) => d.dashed ? '5,5' : null);
+      
+      // Create nodes group
+      const node = svg.append('g')
+        .selectAll('g')
+        .data(filteredData.nodes)
+        .enter()
+        .append('g')
+        .call(d3.drag<SVGGElement, KnowledgeNode>()
+          .on('start', dragstarted)
+          .on('drag', dragged)
+          .on('end', dragended));
+      
+      // Add circles for nodes
+      node.append('circle')
+        .attr('r', 30)
+        .attr('fill', (d) => d.color)
+        .attr('stroke', '#fff')
+        .attr('stroke-width', 2);
+      
+      // Add labels
+      node.append('text')
+        .text((d) => d.label)
+        .attr('text-anchor', 'middle')
+        .attr('dy', '.35em')
+        .attr('fill', 'white')
+        .attr('font-size', '12px')
+        .attr('pointer-events', 'none');
+      
+      // Add click event to show details
+      node.on('click', function(event: MouseEvent, d: KnowledgeNode) {
+        if (window.showNodeDetails) {
+          window.showNodeDetails(d.id);
+        }
+      });
+      
+      // Update positions on tick
+      simulation.on('tick', () => {
+        link
+          .attr('x1', (d) => d.source.x || 0)
+          .attr('y1', (d) => d.source.y || 0)
+          .attr('x2', (d) => d.target.x || 0)
+          .attr('y2', (d) => d.target.y || 0);
+        
+        node.attr('transform', (d) => `translate(${d.x || 0},${d.y || 0})`);
+      });
+      
+      // Drag functions
+      function dragstarted(event: d3.D3DragEvent<SVGGElement, KnowledgeNode, KnowledgeNode>) {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        event.subject.fx = event.subject.x;
+        event.subject.fy = event.subject.y;
+      }
+      
+      function dragged(event: d3.D3DragEvent<SVGGElement, KnowledgeNode, KnowledgeNode>) {
+        event.subject.fx = event.x;
+        event.subject.fy = event.y;
+      }
+      
+      function dragended(event: d3.D3DragEvent<SVGGElement, KnowledgeNode, KnowledgeNode>) {
+        if (!event.active) simulation.alphaTarget(0);
+        event.subject.fx = null;
+        event.subject.fy = null;
+      }
+    };
+    
+    // Render table view
+    const renderTable = (): void => {
+      if (!tableContainer) return;
+      
+      const filteredData = filterData();
+      tableContainer.innerHTML = `
+        <table class="knowledge-table">
+          <thead>
+            <tr>
+              <th>Skill/Concept</th>
+              <th>Domain</th>
+              <th>Level</th>
+              <th>Related Skills</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filteredData.nodes.map(node => {
+              const relatedNodes = knowledgeData.edges
+                .filter(edge => edge.from === node.id || edge.to === node.id)
+                .map(edge => edge.from === node.id ? edge.to : edge.from)
+                .map(id => knowledgeData.nodes.find(n => n.id === id))
+                .filter(n => n !== undefined)
+                .map(n => n.label);
+              
+              return `
+                <tr onclick="showNodeDetails('${node.id}')">
+                  <td>${node.label}</td>
+                  <td>${node.domain.charAt(0).toUpperCase() + node.domain.slice(1)}</td>
+                  <td>${'★'.repeat(node.level)}</td>
+                  <td>${relatedNodes.join(', ')}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      `;
+    };
+    
+    // Render learning path view
+    const renderLearningPath = (): void => {
+      if (!pathContainer) return;
+      
+      pathContainer.innerHTML = `
+        <div class="path-placeholder">
+          <p>Select a beginning skill and target skill to generate a personalized learning path.</p>
+          
+          <div class="path-selection">
+            <div class="path-select">
+              <label for="startSkill">Starting point:</label>
+              <select id="startSkill">
+                ${knowledgeData.nodes.map(node => `
+                  <option value="${node.id}">${node.label}</option>
+                `).join('')}
+              </select>
+            </div>
+            
+            <div class="path-select">
+              <label for="endSkill">Target skill:</label>
+              <select id="endSkill">
+                ${knowledgeData.nodes.map(node => `
+                  <option value="${node.id}">${node.label}</option>
+                `).join('')}
+              </select>
+            </div>
+            
+            <button id="generatePath" class="generate-button">Generate Path</button>
+          </div>
+          
+          <div class="sample-path">
+            <h3>Sample Path: HTML → React</h3>
+            <div class="path-steps">
+              <div class="path-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                  <h4>HTML</h4>
+                  <p>Learn the basics of HTML structure and elements</p>
+                </div>
+              </div>
+              <div class="path-connector"></div>
+              <div class="path-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                  <h4>CSS</h4>
+                  <p>Style your HTML with CSS</p>
+                </div>
+              </div>
+              <div class="path-connector"></div>
+              <div class="path-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                  <h4>JavaScript</h4>
+                  <p>Add interactivity with JavaScript</p>
+                </div>
+              </div>
+              <div class="path-connector"></div>
+              <div class="path-step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                  <h4>React</h4>
+                  <p>Build dynamic UIs with React</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    };
+    
+    // Show detail panel for a specific node
+    const showNodeDetails = (nodeId: string): void => {
+      // Use the properly typed window.knowledgeData
+      const knowledgeData = window.knowledgeData || { nodes: [], details: {} };
+      const node = knowledgeData.nodes.find(n => n.id === nodeId);
+      const details = knowledgeData.details[nodeId];
+      
+      // Make sure all DOM elements and details exist before proceeding
+      if (!detailTitle || !detailContent || !detailsPanel || !details) return;
+      
+      detailTitle.textContent = nodeId.charAt(0).toUpperCase() + nodeId.slice(1);
+      
+      let content = `
+        <p>${details.description}</p>
+        <h4>Resources:</h4>
+        <ul>
+          ${details.resources.map((resource: string) => `<li>${resource}</li>`).join('')}
+        </ul>
+        <h4>Related Skills:</h4>
+        <ul>
+          ${details.related.map((skill: string) => `<li>${skill}</li>`).join('')}
+        </ul>
+      `;
+      
+      detailContent.innerHTML = content;
+      detailsPanel.classList.add('show');
+    };
+    
+    // Close details panel
+    closePanel.addEventListener('click', () => {
+      if (detailsPanel) {
+        detailsPanel.classList.remove('show');
+      }
+    });
+    
+    // Add event listeners
+    graphViewBtn.addEventListener('click', () => showView('graph'));
+    tableViewBtn.addEventListener('click', () => showView('table'));
+    pathViewBtn.addEventListener('click', () => showView('path'));
+    
+    // Add filter event listeners
+    searchInput.addEventListener('input', () => {
+      const activeView = document.querySelector('.view-toggle.active').id;
+      if (activeView === 'graphView') renderGraph();
+      else if (activeView === 'tableView') renderTable();
+    });
+    
+    domainFilter.addEventListener('change', () => {
+      const activeView = document.querySelector('.view-toggle.active').id;
+      if (activeView === 'graphView') renderGraph();
+      else if (activeView === 'tableView') renderTable();
+    });
+    
+    complexitySlider.addEventListener('input', () => {
+      const activeView = document.querySelector('.view-toggle.active').id;
+      if (activeView === 'graphView') renderGraph();
+      else if (activeView === 'tableView') renderTable();
+    });
+    
+    // Make knowledge data available for click handlers
+    window.knowledgeData = knowledgeData;
+    window.showNodeDetails = showNodeDetails;
+    
+    // Initial render
+    renderGraph();
+  });
+</script>
+
+<style>
+  .knowledge-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+  }
+  
+  .page-header {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--theme-divider);
+    padding-bottom: 1rem;
+  }
+  
+  .page-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .intro {
+    font-size: 1.2rem;
+    max-width: 800px;
+    margin-bottom: 1rem;
+  }
+  
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .search-container {
+    flex: 1;
+    min-width: 250px;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--theme-divider, #e9ecef);
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+  
+  .filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    flex: 2;
+  }
+  
+  .domain-filter {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--theme-divider, #e9ecef);
+    border-radius: 6px;
+    font-size: 1rem;
+    min-width: 150px;
+  }
+  
+  .complexity-filter {
+    display: flex;
+    flex-direction: column;
+    min-width: 200px;
+  }
+  
+  .slider-container {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #666;
+  }
+  
+  .view-toggles {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .view-toggle {
+    padding: 0.5rem 1rem;
+    background: none;
+    border: 1px solid var(--theme-divider, #e9ecef);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+  
+  .view-toggle.active {
+    background-color: var(--theme-primary, #4a6cf7);
+    color: white;
+    border-color: var(--theme-primary, #4a6cf7);
+  }
+  
+  .knowledge-content {
+    min-height: 500px;
+    position: relative;
+    margin-bottom: 2rem;
+  }
+  
+  .graph-container, .table-container, .path-container {
+    width: 100%;
+    height: 500px;
+    border: 1px solid var(--theme-divider, #e9ecef);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .loading-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    font-size: 1.2rem;
+    color: #666;
+  }
+  
+  .graph-placeholder {
+    padding: 2rem;
+    text-align: center;
+  }
+  
+  .sample-nodes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+  
+  .sample-node {
+    padding: 1rem;
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  
+  .sample-node:hover {
+    transform: scale(1.1);
+  }
+  
+  .knowledge-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .knowledge-table th, .knowledge-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--theme-divider, #e9ecef);
+  }
+  
+  .knowledge-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+  }
+  
+  .knowledge-table tr {
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .knowledge-table tr:hover {
+    background-color: #f1f3f5;
+  }
+  
+  .path-placeholder {
+    padding: 2rem;
+  }
+  
+  .path-selection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+  
+  .path-select {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .generate-button {
+    padding: 0.75rem 1.5rem;
+    background-color: var(--theme-primary, #4a6cf7);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    align-self: flex-end;
+  }
+  
+  .path-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 2rem;
+  }
+  
+  .path-step {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+  }
+  
+  .step-number {
+    width: 30px;
+    height: 30px;
+    background-color: var(--theme-primary, #4a6cf7);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+  }
+  
+  .step-content h4 {
+    margin: 0;
+    margin-bottom: 0.5rem;
+  }
+  
+  .step-content p {
+    margin: 0;
+  }
+  
+  .path-connector {
+    width: 2px;
+    height: 20px;
+    background-color: var(--theme-divider, #e9ecef);
+    margin-left: 15px;
+  }
+  
+  .details-panel {
+    position: fixed;
+    top: 0;
+    right: -350px;
+    width: 350px;
+    height: 100%;
+    background-color: white;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+    transition: right 0.3s;
+    z-index: 100;
+    overflow-y: auto;
+  }
+  
+  .details-panel.active {
+    right: 0;
+  }
+  
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--theme-divider, #e9ecef);
+  }
+  
+  .panel-header h3 {
+    margin: 0;
+  }
+  
+  .close-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+  
+  .panel-content {
+    padding: 1rem;
+  }
+  
+  .detail-section {
+    margin-bottom: 1.5rem;
+  }
+  
+  .detail-section h4 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    color: #666;
+  }
+  
+  .related-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .related-skill {
+    background-color: #f1f3f5;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+  }
+  
+  .resource-list {
+    margin: 0;
+    padding-left: 1.5rem;
+  }
+  
+  .resource-list li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .select-prompt {
+    color: #666;
+    font-style: italic;
+  }
+  
+  @media (max-width: 768px) {
+    .controls, .filter-container {
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .details-panel {
+      width: 100%;
+      right: -100%;
+    }
+    
+    .sample-node {
+      width: 80px;
+      height: 80px;
+      font-size: 0.9rem;
+    }
+  }
+</style> 

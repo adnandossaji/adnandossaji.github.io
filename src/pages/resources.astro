@@ -1,0 +1,116 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import ResourceList from '../components/resources/ResourceList';
+import type { Resource } from '../types';
+
+// Mock resources data
+const resources: Resource[] = [
+  {
+    id: "astro",
+    title: "Astro",
+    description: "Build faster websites with less client-side JavaScript. Astro is a web framework for building content-focused, fast websites.",
+    url: "https://astro.build/",
+    category: "Development",
+    tags: ["web", "framework", "static site", "javascript"],
+    isFree: true,
+    featured: true,
+    dateAdded: new Date("2023-08-15").toISOString(),
+    icon: "code"
+  },
+  {
+    id: "figma",
+    title: "Figma",
+    description: "Figma is a collaborative web application for interface design, with additional offline features enabled by desktop applications for macOS and Windows.",
+    url: "https://www.figma.com/",
+    category: "Design",
+    tags: ["design", "ui", "prototyping", "collaboration"],
+    isFree: true,
+    featured: true,
+    dateAdded: new Date("2023-08-20").toISOString(),
+    icon: "design"
+  },
+  {
+    id: "notion",
+    title: "Notion",
+    description: "All-in-one workspace for notes, tasks, wikis, and databases. A new tool that blends your everyday work apps into one.",
+    url: "https://www.notion.so/",
+    category: "Productivity",
+    tags: ["notes", "productivity", "organization", "collaboration"],
+    isFree: true,
+    featured: true,
+    dateAdded: new Date("2023-09-15").toISOString(),
+    icon: "document"
+  },
+  {
+    id: "midjourney",
+    title: "Midjourney",
+    description: "AI image generation tool that creates striking visuals from text descriptions. Perfect for creating concept art, illustrations, and creative imagery.",
+    url: "https://www.midjourney.com/",
+    category: "AI & Tools",
+    tags: ["ai", "image generation", "art", "design"],
+    isFree: false,
+    featured: true,
+    dateAdded: new Date("2023-10-10").toISOString(),
+    icon: "image"
+  },
+  {
+    id: "mdn",
+    title: "MDN Web Docs",
+    description: "Comprehensive resource for web developers with documentation for HTML, CSS, JavaScript and web APIs, including browser compatibility information.",
+    url: "https://developer.mozilla.org/",
+    category: "Learning",
+    tags: ["documentation", "web development", "reference", "html", "css", "javascript"],
+    isFree: true,
+    featured: true,
+    dateAdded: new Date("2023-08-10").toISOString(),
+    icon: "code"
+  }
+];
+
+// Count unique categories
+const categoryCount = new Set(resources.map(resource => resource.category)).size;
+---
+
+<MainLayout title="Resource Hub" description="A curated collection of useful resources, tools, and links">
+  <div class="resources-page">
+    <header class="page-header">
+      <h1>Resource Hub</h1>
+      <p class="intro">
+        A curated collection of {resources.length} useful resources across {categoryCount} categories. 
+        Browse by category or search for specific tools and websites.
+      </p>
+    </header>
+
+    <div class="resources-content">
+      <ResourceList resources={resources} client:load />
+    </div>
+  </div>
+</MainLayout>
+
+<style>
+  .resources-page {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .page-header {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--theme-divider);
+    padding-bottom: 1rem;
+  }
+  
+  .page-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .intro {
+    font-size: 1.2rem;
+    max-width: 800px;
+    margin-bottom: 1rem;
+  }
+  
+  .resources-content {
+    min-height: 400px;
+  }
+</style> 

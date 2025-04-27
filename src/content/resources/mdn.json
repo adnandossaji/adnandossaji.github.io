@@ -1,0 +1,11 @@
+{
+  "title": "MDN Web Docs",
+  "description": "Comprehensive resource for web developers with documentation for HTML, CSS, JavaScript and web APIs, including browser compatibility information.",
+  "url": "https://developer.mozilla.org/",
+  "category": "Learning",
+  "tags": ["documentation", "web development", "reference", "html", "css", "javascript"],
+  "isFree": true,
+  "featured": true,
+  "dateAdded": "2023-08-10",
+  "icon": "code"
+} 

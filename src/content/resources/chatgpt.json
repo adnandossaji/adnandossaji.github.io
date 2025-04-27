@@ -1,0 +1,11 @@
+{
+  "title": "ChatGPT",
+  "description": "ChatGPT is an AI-powered language model developed by OpenAI, capable of generating human-like text based on context and past conversations.",
+  "url": "https://chat.openai.com/",
+  "category": "AI & Tools",
+  "tags": ["ai", "writing", "productivity", "assistant"],
+  "isFree": true,
+  "featured": true,
+  "dateAdded": "2023-09-10",
+  "icon": "robot"
+} 

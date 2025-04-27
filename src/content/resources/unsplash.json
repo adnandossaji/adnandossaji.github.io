@@ -1,0 +1,11 @@
+{
+  "title": "Unsplash",
+  "description": "Beautiful, free images and photos that you can download and use for any project. Better than any royalty free or stock photos.",
+  "url": "https://unsplash.com/",
+  "category": "Design",
+  "tags": ["photos", "images", "free", "stock photos"],
+  "isFree": true,
+  "featured": false,
+  "dateAdded": "2023-07-25",
+  "icon": "image"
+} 

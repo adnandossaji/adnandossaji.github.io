@@ -1,0 +1,11 @@
+{
+  "title": "Notion",
+  "description": "All-in-one workspace for notes, tasks, wikis, and databases. A new tool that blends your everyday work apps into one.",
+  "url": "https://www.notion.so/",
+  "category": "Productivity",
+  "tags": ["notes", "productivity", "organization", "collaboration"],
+  "isFree": true,
+  "featured": true,
+  "dateAdded": "2023-09-15",
+  "icon": "document"
+} 

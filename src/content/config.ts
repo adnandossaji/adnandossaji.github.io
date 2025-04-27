@@ -25,12 +25,31 @@ const galleryCollection = defineCollection({
   }),
 });
 
+// Resources collection schema
+const resourcesCollection = defineCollection({
+  type: 'data',
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    url: z.string().url(),
+    category: z.string(),
+    tags: z.array(z.string()).default([]),
+    isFree: z.boolean().default(true),
+    featured: z.boolean().default(false),
+    dateAdded: z.coerce.date(),
+    lastUpdated: z.coerce.date().optional(),
+    icon: z.string().optional(),
+  }),
+});
+
 // Export collections
 export const collections = {
   'blog': blogCollection,
   'gallery': galleryCollection,
+  'resources': resourcesCollection,
 };
 
 // Export types for TypeScript
 export type GallerySchema = z.infer<typeof galleryCollection.schema>;
-export type BlogSchema = z.infer<typeof blogCollection.schema>; 
+export type BlogSchema = z.infer<typeof blogCollection.schema>;
+export type ResourceSchema = z.infer<typeof resourcesCollection.schema>;

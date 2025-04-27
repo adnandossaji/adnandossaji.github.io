@@ -1,0 +1,11 @@
+{
+  "title": "Framer",
+  "description": "Web design and development tool that helps you create responsive websites without code. Features animations, interactions, and seamless design-to-code workflow.",
+  "url": "https://www.framer.com/",
+  "category": "Development",
+  "tags": ["web design", "no-code", "prototyping", "website builder"],
+  "isFree": true,
+  "featured": false,
+  "dateAdded": "2023-09-20",
+  "icon": "code"
+} 

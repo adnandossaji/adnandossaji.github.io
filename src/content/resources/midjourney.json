@@ -1,0 +1,11 @@
+{
+  "title": "Midjourney",
+  "description": "AI image generation tool that creates striking visuals from text descriptions. Perfect for creating concept art, illustrations, and creative imagery.",
+  "url": "https://www.midjourney.com/",
+  "category": "AI & Tools",
+  "tags": ["ai", "image generation", "art", "design"],
+  "isFree": false,
+  "featured": true,
+  "dateAdded": "2023-10-10",
+  "icon": "image"
+} 

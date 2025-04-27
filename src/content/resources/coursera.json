@@ -1,0 +1,11 @@
+{
+  "title": "Coursera",
+  "description": "Online learning platform with courses, specializations, and degrees from top universities and companies. Subjects range from computer science to business and beyond.",
+  "url": "https://www.coursera.org/",
+  "category": "Learning",
+  "tags": ["education", "online courses", "certificates", "degrees"],
+  "isFree": true,
+  "featured": false,
+  "dateAdded": "2023-07-05",
+  "icon": "document"
+} 

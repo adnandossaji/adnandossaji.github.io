@@ -43,6 +43,22 @@ const { title, description, activeCategory = '' } = Astro.props;
         const sidebar = document.getElementById('blogSidebar');
         sidebar?.classList.toggle('active');
       });
+
+      // Load Mermaid dynamically
+      const loadMermaid = async () => {
+        const mermaidElements = document.querySelectorAll('.mermaid');
+        if (mermaidElements.length > 0) {
+          const { default: mermaid } = await import('mermaid');
+          mermaid.initialize({
+            startOnLoad: true,
+            theme: 'neutral',
+            securityLevel: 'loose',
+          });
+          mermaid.init(undefined, '.mermaid');
+        }
+      };
+      
+      document.addEventListener('DOMContentLoaded', loadMermaid);
     </script>
   </body>
 </html> 

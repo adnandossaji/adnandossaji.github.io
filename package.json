@@ -3,18 +3,23 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
+    "dev": "tinacms dev -c \"astro dev\"",
+    "build": "tinacms build && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.11",
     "@astrojs/sitemap": "^3.3.1",
-    "astro": "^5.7.5"
+    "astro": "^5.7.5",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
+    "tinacms": "^3.2.0"
   },
   "devDependencies": {
     "@astrojs/mdx": "^4.2.5",
+    "@tinacms/cli": "^2.0.7",
+    "@types/node": "^25.0.3",
     "mermaid": "^11.6.0",
     "playwright": "^1.52.0",
     "rehype-mermaid": "^3.0.0",

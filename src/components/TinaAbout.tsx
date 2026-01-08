@@ -19,14 +19,14 @@ export default function TinaAbout(props: Props) {
     const { title, body } = data.about;
 
     return (
-        <main>
-            <h1 className="page-title" data-tina-field={tinaField(data.about, 'title')}>{title}</h1>
+        <section className="about-section">
+            <h2 data-tina-field={tinaField(data.about, 'title')} style={{ fontSize: '2.5rem', fontWeight: 700, margin: '0 0 2rem 0' }}>{title}</h2>
 
-            <div data-tina-field={tinaField(data.about, 'body')}>
-                <TinaMarkdown content={body} />
+            <div className="about-content" style={{ fontSize: '1.125rem', color: '#52525b', lineHeight: 1.8 }}>
+                <div data-tina-field={tinaField(data.about, 'body')}>
+                    <TinaMarkdown content={body} />
+                </div>
             </div>
-
-            {props.children}
-        </main>
+        </section>
     );
 }

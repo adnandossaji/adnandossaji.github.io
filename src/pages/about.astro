@@ -15,83 +15,19 @@ const aboutData = await client.queries.about({ relativePath: 'index.md' });
 			title="About Me" 
 			description="Software engineer with a passion for photography, growing peppers, houseplants, and snowboarding" 
 		/>
-		<style>
-			main {
-				max-width: 900px;
-				margin: 0 auto;
-				padding: 2rem;
-			}
-			.page-title {
-				font-size: 2.8rem;
-				margin-bottom: 1.5rem;
-				background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
-				-webkit-background-clip: text;
-				-webkit-text-fill-color: transparent;
-				background-clip: text;
-			}
-			h2 {
-				border-bottom: 2px solid rgba(131, 56, 236, 0.2);
-				padding-bottom: 0.5rem;
-				margin-top: 2.5rem;
-			}
-			h2::before {
-				margin-right: 0.5rem;
-				font-size: 1.5rem;
-			}
-			h2.intro::before { content: "👋 "; }
-			h2.interests::before { content: "🌱 "; }
-			h2.work::before { content: "🏢 "; }
-			h2.connect::before { content: "🔗 "; }
-			
-			p {
-				line-height: 1.8;
-				color: #4a4a4a;
-			}
-			a {
-				text-decoration: none;
-				border-bottom: 1px dotted #8338ec;
-				transition: all 0.2s ease;
-			}
-			a:hover {
-				color: #ff006e;
-				border-bottom: 1px solid #ff006e;
-			}
-			.interests-icons {
-				display: flex;
-				justify-content: space-around;
-				flex-wrap: wrap;
-				margin: 1.5rem 0;
-			}
-			.interest-item {
-				text-align: center;
-				margin: 0 1rem 1.5rem;
-			}
-			.interest-icon {
-				font-size: 2.5rem;
-				margin-bottom: 0.5rem;
-				display: block;
-			}
-			.interest-name {
-				font-weight: 500;
-			}
-			ul {
-				line-height: 1.8;
-				color: #4a4a4a;
-				margin-left: 1.5rem;
-			}
-			@media (max-width: 768px) {
-				.interests-icons {
-					justify-content: center;
-				}
-				.interest-item {
-					width: 40%;
-				}
-			}
-		</style>
 	</head>
 	<body>
 		<Header />
-		<TinaAbout {...aboutData} client:load />
+		
+		<main class="content-container">
+			<div class="side-column">
+				<span class="mono-meta label-bold">INFO</span>
+			</div>
+			<article class="main-column">
+				<TinaAbout {...aboutData} client:load />
+			</article>
+		</main>
+
 		<Footer />
 	</body>
 </html>

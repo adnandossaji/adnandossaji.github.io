@@ -1,10 +1,10 @@
 .blog-post {
-    max-width: 900px;
     margin: 0 auto;
+    padding-top: var(--space-8);
 }
 
 .post-header {
-    margin-bottom: 2rem;
+    margin-bottom: var(--space-12);
 }
 
 .post-meta {
@@ -29,69 +29,59 @@
 }
 
 .post-title {
-    font-size: 2.8rem;
-    margin: 0;
-    line-height: 1.2;
-    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-size: 3rem;
+    margin: 0.5rem 0 0 0;
+    line-height: 1.1;
+    font-weight: 700;
+    color: var(--text-primary);
 }
 
-.hero-image {
-    margin: 2rem 0;
-    border-radius: 1rem;
-    overflow: hidden;
-    max-height: 500px;
-}
-
-.hero-image img {
+.post-hero-image {
     width: 100%;
-    object-fit: cover;
+    height: auto;
+    margin: var(--space-12) 0;
+    display: block;
 }
 
 .post-content {
-    font-size: 1.1rem;
-    line-height: 1.8;
-    color: var(--text-dark);
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
 }
 
 .post-content h2 {
-    font-size: 1.8rem;
-    margin-top: 2.5rem;
-    margin-bottom: 1rem;
-    color: var(--text-dark);
+    font-size: 1.75rem;
+    margin-top: var(--space-12);
+    margin-bottom: var(--space-4);
+    color: var(--text-primary);
+    font-weight: 700;
 }
 
 .post-content h3 {
-    font-size: 1.4rem;
-    margin-top: 2rem;
-    margin-bottom: 0.75rem;
-    color: var(--text-dark);
+    font-size: 1.25rem;
+    margin-top: var(--space-8);
+    margin-bottom: var(--space-4);
+    color: var(--text-primary);
+    font-weight: 600;
 }
 
 .post-content p {
     margin-bottom: 1.5rem;
 }
 
-.post-content img {
-    max-width: 100%;
-    border-radius: 0.5rem;
-    margin: 1.5rem 0;
-}
-
 .post-content a {
     color: var(--primary);
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
+    text-decoration: underline;
+    text-underline-offset: 2px;
     transition: all 0.2s ease;
 }
 
 .post-content a:hover {
-    border-bottom-color: var(--primary);
+    color: var(--primary-dark);
 }
 
-.post-content ul, .post-content ol {
+.post-content ul,
+.post-content ol {
     margin-bottom: 1.5rem;
     padding-left: 1.5rem;
 }
@@ -101,21 +91,20 @@
 }
 
 .post-content blockquote {
-    border-left: 4px solid var(--primary);
-    padding-left: 1.5rem;
-    margin-left: 0;
-    color: var(--text-muted);
+    margin: var(--space-8) 0;
+    padding-left: var(--space-6);
+    border-left: 2px solid var(--text-muted);
     font-style: italic;
+    color: var(--text-muted);
 }
 
 .post-content pre {
-    background-color: var(--dark);
-    color: var(--light);
-    padding: 1.5rem;
-    border-radius: 0.5rem;
+    background: #f4f4f5;
+    /* zinc-100 */
+    padding: var(--space-6);
     overflow-x: auto;
+    margin: var(--space-8) 0;
     font-size: 0.9rem;
-    margin: 1.5rem 0;
 }
 
 .post-content code {
@@ -126,14 +115,12 @@
 }
 
 .post-footer {
-    margin-top: 3rem;
-    padding-top: 2rem;
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    margin-top: var(--space-16);
+    padding-top: var(--space-8);
+    border-top: 1px solid #f4f4f5;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
 }
 
 .back-to-blog {
@@ -150,52 +137,30 @@
     color: var(--primary-dark);
 }
 
-.share-post {
+.share-links {
     display: flex;
-    align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
 }
 
-.share-label {
-    font-size: 0.9rem;
+.share-links a {
     color: var(--text-muted);
-}
-
-.share-buttons {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.share-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.2rem;
-    height: 2.2rem;
-    border-radius: 50%;
-    background-color: rgba(0, 0, 0, 0.05);
-    color: var(--text-dark);
+    text-decoration: none;
     transition: all 0.2s ease;
 }
 
-.share-button:hover {
-    background-color: var(--primary);
-    color: white;
+.share-links a:hover {
+    color: var(--text-primary);
+    text-decoration: underline;
 }
 
 @media (max-width: 768px) {
     .post-title {
-        font-size: 2rem;
+        font-size: 2.25rem;
     }
-    
+
     .post-footer {
         flex-direction: column;
         align-items: flex-start;
-    }
-    
-    .share-post {
-        margin-top: 1rem;
-        width: 100%;
-        justify-content: space-between;
+        gap: 2rem;
     }
 }

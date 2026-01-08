@@ -18,13 +18,9 @@ export default function TinaHome(props: Props) {
     const { title, description, linkedin } = data.home;
 
     return (
-        <>
-            <section className="hero">
-                <h1 data-tina-field={tinaField(data.home, 'title')}>{title}</h1>
-                <p data-tina-field={tinaField(data.home, 'description')}>{description}</p>
-            </section>
-
-            {props.children}
-        </>
+        <section className="ultra-hero">
+            <h1 data-tina-field={tinaField(data.home, 'title')} style={{ fontSize: '3rem', fontWeight: 700, margin: '0 0 1rem 0' }}>{title}</h1>
+            <p data-tina-field={tinaField(data.home, 'description')} style={{ fontSize: '1.25rem', color: '#52525b', maxWidth: '600px', lineHeight: 1.5 }}>{description}</p>
+        </section>
     );
 }

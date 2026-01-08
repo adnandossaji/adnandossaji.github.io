@@ -2,107 +2,77 @@
 import { getCollection } from 'astro:content';
 import FormattedDate from '../../components/FormattedDate.astro';
 import BlogLayout from '../../layouts/BlogLayout.astro';
-import '../../styles/components/blog-layout.css';
 
 const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 ---
 
-<BlogLayout title="Blog Posts" description="Read the latest articles and insights from Adnan Dossaji">
-	<div class="blog-header">
-		<h1 class="page-title gradient-title">All Posts</h1>
-		<p class="page-description">
-			Explore my thoughts, projects, and insights on technology, programming, and more.
-		</p>
-	</div>
-	
-	<div class="filter-container">
-		<div class="post-filters">
-			<div class="filter-label">Sort by:</div>
-			<div class="filter-options">
-				<button class="filter-option active" data-sort="newest">Newest</button>
-				<button class="filter-option" data-sort="oldest">Oldest</button>
-			</div>
+<BlogLayout title="Archive" description="Read the latest articles and insights from Adnan Dossaji">
+	<main class="content-container" style="padding-top: var(--space-16);">
+		<div class="side-column">
+			<span class="mono-meta label-bold">ARCHIVE</span>
+			<div class="index-number" style="margin-top: 1rem;">({posts.length})</div>
 		</div>
-	</div>
-	
-	<ul class="blog-list blog-grid">
-		{
-			posts.map((post) => (
-				<li class="blog-item blog-post-card" data-date={post.data.pubDate.valueOf()}>
-					<div class="blog-thumbnail">
-						<a href={`/blog/${post.id}/`}>
-							<img src={post.data.heroImage} alt={post.data.title} />
+		<section class="main-column">
+			<div class="posts-list">
+				{
+					posts.map((post, index) => (
+						<a href={`/blog/${post.id}/`} class="post-item">
+							<div class="post-item-left">
+								<div class="index-number">{index + 1 < 10 ? `0${index + 1}` : index + 1}</div>
+								<div class="post-date mono-meta">
+									<FormattedDate date={post.data.pubDate} />
+								</div>
+							</div>
+							<span class="post-title">{post.data.title}</span>
 						</a>
-					</div>
-					<div class="blog-content">
-						<h2 class="blog-title">
-							<a href={`/blog/${post.id}/`}>
-								{post.data.title}
-							</a>
-						</h2>
-						<p class="blog-date">
-							<span class="date-icon">
-								<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-									<path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
-								</svg>
-							</span>
-							<FormattedDate date={post.data.pubDate} />
-						</p>
-						<p class="blog-description">{post.data.description}</p>
-						<div class="post-footer">
-							<a href={`/blog/${post.id}/`} class="read-more">
-								Read more <span class="arrow">→</span>
-							</a>
-						</div>
-					</div>
-				</li>
-			))
-		}
-	</ul>
+					))
+				}
+			</div>
+		</section>
+	</main>
 </BlogLayout>
 
-<script>
-	document.addEventListener('DOMContentLoaded', () => {
-		// Get references to sorting buttons and blog items
-		const sortButtons = document.querySelectorAll('.filter-option');
-		const blogGrid = document.querySelector('.blog-list');
-		const blogItems = Array.from(document.querySelectorAll('.blog-item'));
-		
-		// Store original order of items
-		const originalOrder = [...blogItems];
-		
-		// Handle sort button clicks
-		sortButtons.forEach(button => {
-			button.addEventListener('click', () => {
-				// Update active class
-				sortButtons.forEach(btn => btn.classList.remove('active'));
-				button.classList.add('active');
-				
-				// Get sort order
-				const sortOrder = button.getAttribute('data-sort');
-				
-				// Sort blog items
-				if (sortOrder === 'newest') {
-					blogItems.sort((a, b) => {
-						const dateA = parseInt(a.getAttribute('data-date') || '0');
-						const dateB = parseInt(b.getAttribute('data-date') || '0');
-						return dateB - dateA; // Newest first
-					});
-				} else if (sortOrder === 'oldest') {
-					blogItems.sort((a, b) => {
-						const dateA = parseInt(a.getAttribute('data-date') || '0');
-						const dateB = parseInt(b.getAttribute('data-date') || '0');
-						return dateA - dateB; // Oldest first
-					});
-				}
-				
-				// Update DOM with sorted items
-				blogItems.forEach(item => {
-					blogGrid?.appendChild(item);
-				});
-			});
-		});
-	});
-</script>
+<style>
+	.posts-list {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+	.post-item {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--space-8);
+		padding: 0.5rem 0;
+		transition: opacity 0.2s ease;
+		text-decoration: none;
+		color: inherit;
+	}
+	.post-item:hover {
+		opacity: 0.6;
+	}
+	.post-item-left {
+		display: flex;
+		gap: 1.5rem;
+		align-items: baseline;
+		width: var(--grid-sidebar-width);
+		flex-shrink: 0;
+	}
+	.post-title {
+		font-size: 1.5rem;
+		font-weight: 700;
+		line-height: 1.1;
+		letter-spacing: -0.02em;
+	}
+	
+	@media (max-width: 900px) {
+		.post-item {
+			flex-direction: column;
+			gap: 0.5rem;
+		}
+		.post-item-left {
+			width: auto;
+		}
+	}
+</style>

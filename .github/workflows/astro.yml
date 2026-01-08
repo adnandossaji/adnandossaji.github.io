@@ -32,6 +32,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    environment: github-pages
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -68,10 +69,14 @@ jobs:
         working-directory: ${{ env.BUILD_PATH }}
       - name: Build with Astro
         run: |
+          ${{ steps.detect-package-manager.outputs.runner }} tinacms build
           ${{ steps.detect-package-manager.outputs.runner }} astro build \
             --site "${{ steps.pages.outputs.origin }}" \
             --base "${{ steps.pages.outputs.base_path }}"
         working-directory: ${{ env.BUILD_PATH }}
+        env:
+          TINA_CMS_CLIENT_ID: ${{ vars.TINA_CMS_CLIENT_ID }}
+          TINA_CMS_CONTENT_TOKEN: ${{ vars.TINA_CMS_CONTENT_TOKEN }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

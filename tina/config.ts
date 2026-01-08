@@ -30,10 +30,78 @@ export default defineConfig({
     schema: {
         collections: [
             {
+                name: "home",
+                label: "Home",
+                path: "src/content/home",
+                format: "md",
+                ui: {
+                    router: () => "/",
+                    allowedActions: {
+                        create: false,
+                        delete: false,
+                    },
+                },
+                fields: [
+                    {
+                        type: "string",
+                        name: "title",
+                        label: "Title",
+                        isTitle: true,
+                        required: true,
+                    },
+                    {
+                        type: "string",
+                        name: "description",
+                        label: "Description",
+                        ui: {
+                            component: "textarea",
+                        },
+                    },
+                    {
+                        type: "string",
+                        name: "linkedin",
+                        label: "LinkedIn URL",
+                    },
+                ],
+            },
+            {
+                name: "about",
+                label: "About",
+                path: "src/content/about",
+                format: "md",
+                ui: {
+                    router: () => "/about",
+                    allowedActions: {
+                        create: false,
+                        delete: false,
+                    },
+                },
+                fields: [
+                    {
+                        type: "string",
+                        name: "title",
+                        label: "Title",
+                        isTitle: true,
+                        required: true,
+                    },
+                    {
+                        type: "rich-text",
+                        name: "body",
+                        label: "Body",
+                        isBody: true,
+                    },
+                ],
+            },
+            {
                 name: "blog",
                 label: "Blog Posts",
                 path: "src/content/blog",
                 format: "md",
+                ui: {
+                    router: ({ document }) => {
+                        return `/blog/${document._sys.filename}`;
+                    },
+                },
                 fields: [
                     {
                         type: "string",

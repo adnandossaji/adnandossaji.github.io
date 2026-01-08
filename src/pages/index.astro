@@ -5,11 +5,15 @@ import Footer from '../components/Footer.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import { getCollection } from 'astro:content';
 import FormattedDate from '../components/FormattedDate.astro';
+import { client } from '../../tina/__generated__/client';
+import TinaHome from '../components/TinaHome';
 
 // Get the 3 most recent blog posts
 const posts = (await getCollection('blog'))
 	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
 	.slice(0, 3);
+
+const homeData = await client.queries.home({ relativePath: 'index.md' });
 ---
 
 <!doctype html>
@@ -196,13 +200,7 @@ const posts = (await getCollection('blog'))
 	<body>
 		<Header />
 		<main>
-			<section class="hero">
-				<h1>👋 Hello, I'm Adnan Dossaji</h1>
-				<p>
-					Senior Software Engineer based in Chicago with expertise in building scalable, secure applications. 
-					I specialize in authentication systems, risk engineering, and full-stack development.
-				</p>
-			</section>
+			<TinaHome {...homeData} client:load />
 
 			<section class="recent-posts">
 				<h2 class="section-title"><span class="section-emoji">📝</span>Recent Blog Posts</h2>

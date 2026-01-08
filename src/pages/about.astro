@@ -2,6 +2,10 @@
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { client } from '../../tina/__generated__/client';
+import TinaAbout from '../components/TinaAbout';
+
+const aboutData = await client.queries.about({ relativePath: 'index.md' });
 ---
 
 <!doctype html>
@@ -87,65 +91,7 @@ import Footer from '../components/Footer.astro';
 	</head>
 	<body>
 		<Header />
-		<main>
-			<h1 class="page-title">About Me</h1>
-
-			<h2 class="intro">Hello, I'm Adnan</h2>
-			<p>
-				Senior Software Engineer specializing in authentication systems, API design, and building secure, scalable applications. 
-				Currently at Chime. Previously at Panopta, Bank of America, AT&T, the Chicago Cubs, and Medtelligent. Former graphic designer turned engineer with a 
-				passion for clean code and thoughtful experiences.
-			</p>
-
-			<h2 class="interests">Beyond the Code</h2>
-			<div class="interests-icons">
-				<div class="interest-item">
-					<span class="interest-icon">🍴</span>
-					<span class="interest-name">Gastronomy</span>
-				</div>
-				<div class="interest-item">
-					<span class="interest-icon">📸</span>
-					<span class="interest-name">Photography</span>
-				</div>
-				<div class="interest-item">
-					<span class="interest-icon">🌿</span>
-					<span class="interest-name">Gardening</span>
-				</div>
-				<div class="interest-item">
-					<span class="interest-icon">🏂</span>
-					<span class="interest-name">Snowboarding</span>
-				</div>
-			</div>
-
-			<h2 class="work">Professional Journey</h2>
-			<ul>
-				<li><strong style="color: #3a86ff;">Chime</strong> — Risk Engineering & secure authentication systems</li>
-				<li><strong style="color: #3a86ff;">Panopta</strong> — Network monitoring & performance analytics</li>
-				<li><strong style="color: #3a86ff;">Bank of America Merrill Lynch</strong> — Financial market data technology</li>
-				<li><strong style="color: #3a86ff;">Chicago Cubs</strong> — Ticketing systems & data analytics</li>
-				<li><strong style="color: #3a86ff;">Medtelligent</strong> — Real-time interactive dashboard for employee engagement</li>
-				<li><strong style="color: #3a86ff;">Design Background</strong> — Branding & visual identity for Elektro, MMM's Gourmet Ice Cream, and Koita Foods</li>
-			</ul>
-
-			<h2 class="work">Projects</h2>
-			<ul>
-				<li><strong style="color: #3a86ff;">Sunscape</strong> — Runescape private server</li>
-				<li><strong style="color: #3a86ff;">180 designs</strong> — Graphic design forum run on a freemium forum software</li>
-				<li><strong style="color: #3a86ff;">DelusionFX</strong> — Yet another graphic design forum run on Invision Board</li>
-				<li><strong style="color: #3a86ff;">Northtrack: NAXP</strong> — Nurse education experience tracker</li>
-				<li><strong style="color: #3a86ff;">Nano Labs</strong> — Consulting & development</li>
-				<li><strong style="color: #3a86ff;">Timedish</strong> — Event-based social network</li>
-				<li><strong style="color: #3a86ff;">Webseam</strong> — Web3 website builder</li>
-			</ul>
-
-			<h2 class="connect">Let's Connect</h2>
-			<p>
-				Find me on 
-				<a href="https://github.com/adnandossaji" target="_blank">GitHub</a>, 
-				<a href="https://instagram.com/adnanprint" target="_blank">Instagram</a>, or 
-				<a href="https://linkedin.com/in/adnandossaji" target="_blank">LinkedIn</a>.
-			</p>
-		</main>
+		<TinaAbout {...aboutData} client:load />
 		<Footer />
 	</body>
 </html>

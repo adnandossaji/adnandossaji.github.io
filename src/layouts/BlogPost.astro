@@ -1,77 +1,92 @@
 ---
-1: ---
-2: import type { CollectionEntry } from 'astro:content';
-3: import BlogLayout from './BlogLayout.astro';
-4: import FormattedDate from '../components/FormattedDate.astro';
-5: 
-6: type Props = CollectionEntry<'blog'>['data'];
-7: 
-8: const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
-9: ---
-10: 
-11: <BlogLayout title={title} description={description}>
-12: 	<main class="content-container" style="padding-top: var(--space-16);">
-13: 		<div class="side-column">
-14: 			<div class="post-meta-sticky">
-15: 				<span class="mono-meta label-bold">DATE</span>
-16: 				<div class="mono-meta" style="margin-top: 0.5rem;">
-17: 					<FormattedDate date={pubDate} />
-18: 				</div>
-19: 				{
-20: 					updatedDate && (
-21: 						<div class="mono-meta" style="margin-top: 1.5rem;">
-22: 							<span class="label-bold">UPDATED</span>
-23: 							<div style="margin-top: 0.5rem;"><FormattedDate date={updatedDate} /></div>
-24: 						</div>
-25: 					)
-26: 				}
-27: 			</div>
-28: 		</div>
-29: 
-30: 		<article class="main-column">
-31: 			<div class="post-header">
-32: 				<h1 class="post-title">{title}</h1>
-33: 				{heroImage && <img src={heroImage} alt="" class="hero-image" />}
-34: 			</div>
-35: 			<div class="prose">
-36: 				<slot />
-37: 			</div>
-38: 			<footer class="post-footer" style="margin-top: var(--space-16); border-top: var(--border-hairline); padding-top: var(--space-8);">
-39: 				<a href="/blog" class="mono-meta label-bold">&larr; Back to Archive</a>
-40: 			</footer>
-41: 		</article>
-42: 	</main>
-43: </BlogLayout>
-44: 
-45: <style>
-46: 	.post-meta-sticky {
-47: 		position: sticky;
-48: 		top: calc(var(--space-16) + var(--space-8));
-49: 	}
-50: 	.post-header {
-51: 		margin-bottom: var(--space-12);
-52: 	}
-53: 	.post-title {
-54: 		font-size: 3.5rem;
-55: 		font-weight: 800;
-56: 		line-height: 1.05;
-57: 		margin-bottom: var(--space-8);
-58: 		letter-spacing: -0.03em;
-59: 	}
-60: 	.hero-image {
-61: 		width: 100%;
-62: 		height: auto;
-63: 		display: block;
-64: 		margin-bottom: var(--space-8);
-65: 	}
-66: 	
-67: 	@media (max-width: 900px) {
-68: 		.post-title {
-69: 			font-size: 2.5rem;
-70: 		}
-71: 		.post-meta-sticky {
-72: 			position: static;
-73: 			margin-bottom: var(--space-8);
-74: 		}
-75: 	}
-76: </style>
+import type { CollectionEntry } from 'astro:content';
+import BlogLayout from './BlogLayout.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+
+type Props = CollectionEntry<'blog'>['data'];
+
+const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+---
+
+<BlogLayout title={title} description={description}>
+	<main class="content-container">
+		<div class="side-column">
+			<div class="post-meta-sticky">
+				<span class="mono-meta label-bold">DATE</span>
+				<div class="mono-meta" style="margin-top: 0.5rem;">
+					<FormattedDate date={pubDate} />
+				</div>
+				{
+					updatedDate && (
+						<div class="mono-meta" style="margin-top: 1.5rem;">
+							<span class="label-bold">UPDATED</span>
+							<div style="margin-top: 0.5rem;"><FormattedDate date={updatedDate} /></div>
+						</div>
+					)
+				}
+			</div>
+		</div>
+
+		<article class="main-column">
+			<div class="post-header">
+				<h1 class="post-title">{title}</h1>
+				{heroImage && <img src={heroImage} alt="" class="hero-image" />}
+			</div>
+			<div class="prose">
+				<slot />
+			</div>
+			<footer class="post-footer">
+				<a href="/blog" class="back-link mono-meta label-bold">&larr; Back to Archive</a>
+			</footer>
+		</article>
+	</main>
+</BlogLayout>
+
+<style>
+	.content-container {
+		padding-top: var(--space-16);
+	}
+	.post-meta-sticky {
+		position: sticky;
+		top: calc(var(--space-8) + 2rem);
+	}
+	.post-header {
+		margin-bottom: var(--space-12);
+	}
+	.post-title {
+		font-size: clamp(2rem, 8vw, 3.5rem);
+		font-weight: 800;
+		line-height: 1.05;
+		margin-bottom: var(--space-8);
+		letter-spacing: -0.03em;
+	}
+	.hero-image {
+		width: 100%;
+		height: auto;
+		display: block;
+		margin-bottom: var(--space-8);
+	}
+	.prose :global(img) {
+		max-width: 100%;
+		height: auto;
+	}
+	.post-footer {
+		margin-top: var(--space-16);
+		border-top: var(--border-hairline);
+		padding-top: var(--space-8);
+	}
+	.back-link {
+		display: inline-block;
+		padding: 0.5rem 0;
+	}
+	
+	@media (max-width: 768px) {
+		.post-meta-sticky {
+			position: static;
+			margin-bottom: var(--space-8);
+		}
+		.back-link {
+			padding: 1rem 0; /* Larger tap target on mobile */
+		}
+	}
+</style>

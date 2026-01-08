@@ -38,7 +38,7 @@ const posts = (await getCollection('blog')).sort(
 	.posts-list {
 		display: flex;
 		flex-direction: column;
-		gap: 2rem;
+		gap: clamp(1.5rem, 4vw, 2rem);
 	}
 	.post-item {
 		display: flex;
@@ -60,19 +60,21 @@ const posts = (await getCollection('blog')).sort(
 		flex-shrink: 0;
 	}
 	.post-title {
-		font-size: 1.5rem;
+		font-size: clamp(1.1rem, 4vw, 1.5rem);
 		font-weight: 700;
 		line-height: 1.1;
 		letter-spacing: -0.02em;
 	}
 	
-	@media (max-width: 900px) {
+	@media (max-width: 768px) {
 		.post-item {
 			flex-direction: column;
-			gap: 0.5rem;
+			gap: 0.25rem;
+			padding: 1rem 0; /* Increased tap target */
 		}
 		.post-item-left {
 			width: auto;
+			gap: 1rem;
 		}
 	}
 </style>
